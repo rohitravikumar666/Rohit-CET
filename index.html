@@ -5,35 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Records Dashboard</title>
     <style>
-        :root { --primary: #2563eb; --primary-hover: #1d4ed8; --danger: #ef4444; --success: #16a34a; --bg: #f8fafc; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); padding: 20px; color: #1e293b; }
-        .header { max-width: 900px; margin: 0 auto 20px; text-align: center; }
+        :root { --primary: #2563eb; --danger: #ef4444; --success: #16a34a; --bg: #f8fafc; }
+        body { font-family: sans-serif; background: var(--bg); padding: 20px; color: #1e293b; }
         .controls { 
             display: flex; flex-wrap: wrap; gap: 10px; background: white; 
             padding: 15px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 20px; max-width: 900px; margin-left: auto; margin-right: auto;
-            align-items: center;
+            margin-bottom: 20px; max-width: 1000px; margin: 0 auto 20px auto; align-items: center;
         }
-        select { padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; flex: 2; font-size: 14px; }
-        button {
-            padding: 10px 20px; background-color: var(--primary); color: white;
-            border: none; border-radius: 6px; font-weight: 600; cursor: pointer; flex: 1;
-        }
-        button:hover { background-color: var(--primary-hover); }
-        .card { max-width: 900px; margin: 0 auto; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #f8fafc; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; font-size: 14px; }
-        td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-        .status-low { color: var(--danger); font-weight: bold; background: #fee2e2; padding: 2px 5px; border-radius: 4px; }
-        .status-ok { color: var(--success); font-weight: 500; }
-        .loading { padding: 40px; text-align: center; color: #64748b; }
+        select, button { padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 14px; }
+        button { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; min-width: 120px; }
+        button:hover { background: #1d4ed8; }
+        .card { max-width: 1000px; margin: 0 auto; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background: #f8fafc; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; color: #64748b; font-size: 13px; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        .status-low { color: var(--danger); font-weight: bold; background: #fee2e2; padding: 2px 6px; border-radius: 4px; }
+        .status-ok { color: var(--success); font-weight: bold; }
+        .loading { padding: 40px; text-align: center; color: #64748b; font-style: italic; }
     </style>
 </head>
 <body>
-
-<div class="header">
-    <h1>Academic Records</h1>
-</div>
 
 <div class="controls">
     <select id="sheetSelector" onchange="fetchData()">
@@ -53,17 +44,15 @@
 
     <select id="sortSelector">
         <option value="none">Original Order</option>
-        <option value="high">Highest First</option>
-        <option value="low">Lowest First</option>
+        <option value="high">Highest Marks (Col C)</option>
+        <option value="low">Lowest Marks (Col C)</option>
     </select>
 
-    <button onclick="processAndRender()">Sort Now</button>
+    <button onclick="processAndRender()">Apply Sort</button>
 </div>
 
-<div class="card">
-    <div id="tableContainer">
-        <div class="loading">Loading...</div>
-    </div>
+<div class="card" id="tableWrapper">
+    <div id="tableContainer"></div>
 </div>
 
 <script>
@@ -73,28 +62,28 @@
 
     async function fetchData() {
         const gid = document.getElementById('sheetSelector').value;
-        document.getElementById('tableContainer').innerHTML = '<div class="loading">Fetching data...</div>';
+        const container = document.getElementById('tableContainer');
+        container.innerHTML = '<div class="loading">Syncing with Google Sheets...</div>';
 
         try {
             const res = await fetch(`${csvBase}&gid=${gid}`);
             const text = await res.text();
-            // Split rows and filter out empty ones
-            const data = text.split('\n').map(r => r.split(',')).filter(r => r.length > 1);
+            const data = text.split('\n').filter(r => r.trim() !== '').map(r => r.split(','));
             
             globalHeaders = data[0];
             globalRows = data.slice(1);
             
             processAndRender();
         } catch (e) {
-            document.getElementById('tableContainer').innerHTML = '<div class="loading">Error. Check Google Sheet Publication.</div>';
+            container.innerHTML = '<div class="loading">Connection Error. Is the sheet published?</div>';
         }
     }
 
-    // Helper function to turn "85%" or "15" into the number 85 or 15
-    function cleanNumber(val) {
-        if (!val) return 0;
-        let cleaned = val.toString().replace('%', '').trim();
-        return parseFloat(cleaned) || 0;
+    function cleanNum(val) {
+        if (val === undefined || val === null) return -1;
+        // Strip everything except numbers and decimals
+        let cleaned = val.toString().replace(/[^\d.-]/g, '');
+        return cleaned === '' ? -1 : parseFloat(cleaned);
     }
 
     function processAndRender() {
@@ -102,16 +91,15 @@
         const gid = document.getElementById('sheetSelector').value;
         const threshold = (gid === "0") ? 75 : 10;
         
-        // Use a copy of the rows to avoid messing up the original data fetch
         let dataToDisplay = [...globalRows];
 
-        // Column index to sort by (1 = usually marks/percentage)
-        const sortColIndex = 1;
+        // TARGET COLUMN C (Index 2)
+        const targetCol = 2; 
 
         if (sortType === 'high') {
-            dataToDisplay.sort((a, b) => cleanNumber(b[sortColIndex]) - cleanNumber(a[sortColIndex]));
+            dataToDisplay.sort((a, b) => cleanNum(b[targetCol]) - cleanNum(a[targetCol]));
         } else if (sortType === 'low') {
-            dataToDisplay.sort((a, b) => cleanNumber(a[sortColIndex]) - cleanNumber(b[sortColIndex]));
+            dataToDisplay.sort((a, b) => cleanNum(a[targetCol]) - cleanNum(b[targetCol]));
         }
 
         let html = '<table><thead><tr>';
@@ -121,11 +109,14 @@
         dataToDisplay.forEach(row => {
             html += '<tr>';
             row.forEach((cell, i) => {
-                let val = cell.trim();
-                let num = cleanNumber(val);
-                // Highlight red if column is numeric and below threshold
-                let isNumericCol = i > 0 && val !== "" && !isNaN(num);
-                let style = (isNumericCol && num < threshold) ? 'status-low' : (isNumericCol ? 'status-ok' : '');
+                let val = cell ? cell.trim() : "";
+                let num = cleanNum(val);
+                
+                // Color logic for Column C (Index 2)
+                let style = "";
+                if (i === targetCol && num !== -1) {
+                    style = (num < threshold) ? 'status-low' : 'status-ok';
+                }
                 
                 html += `<td><span class="${style}">${val}</span></td>`;
             });
