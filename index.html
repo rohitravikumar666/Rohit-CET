@@ -1,319 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Civil Engineering Modelling Lab - Marks</title>
+    <title>Student Dashboard</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            padding: 30px;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 20px;
-        }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .controls {
-            display: flex;
-            gap: 10px;
+        :root { --primary: #2563eb; --danger: #ef4444; --success: #22c55e; --bg: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); padding: 20px; color: #1e293b; }
+        .header { max-width: 1000px; margin: 0 auto 20px; }
+        .controls { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 15px; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             margin-bottom: 20px;
-            flex-wrap: wrap;
         }
-        
-        input[type="text"], select {
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        
-        button {
-            padding: 10px 20px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-        
-        button:hover {
-            background: #764ba2;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        
-        th {
-            background: #667eea;
-            color: white;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-        }
-        
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        tr:hover {
-            background: #f9f9f9;
-        }
-        
-        .roll-number {
-            font-weight: 600;
-            color: #667eea;
-        }
-        
-        .marks-excellent {
-            color: #27ae60;
-            font-weight: 600;
-        }
-        
-        .marks-good {
-            color: #f39c12;
-            font-weight: 600;
-        }
-        
-        .marks-average {
-            color: #e74c3c;
-            font-weight: 600;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-        
-        .no-data {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
+        select, input { padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; }
+        input:focus { border-color: var(--primary); }
+        .card { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f1f5f9; padding: 15px; text-align: left; cursor: pointer; position: sticky; top: 0; }
+        td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; }
+        .status-low { color: var(--danger); font-weight: bold; background: #fee2e2; padding: 2px 6px; border-radius: 4px; }
+        .status-ok { color: var(--success); font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Civil Engineering Modelling Lab</h1>
-            <p class="subtitle">Marks Tracker</p>
-        </header>
-        
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-value" id="totalStudents">0</div>
-                <div class="stat-label">Total Students</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="avgMarks">0</div>
-                <div class="stat-label">Average Marks</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="passRate">0%</div>
-                <div class="stat-label">Pass Rate (≥40)</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="topScore">0</div>
-                <div class="stat-label">Highest Score</div>
-            </div>
-        </div>
-        
-        <div class="controls">
-            <input type="text" id="searchInput" placeholder="Search by roll number or name..." />
-            <select id="sortBy">
-                <option value="roll">Sort by Roll Number</option>
-                <option value="name">Sort by Name</option>
-                <option value="marks">Sort by Marks (High to Low)</option>
-            </select>
-            <button onclick="downloadCSV()">Download CSV</button>
-        </div>
-        
-        <table id="dataTable">
-            <thead>
-                <tr>
-                    <th>Roll Number</th>
-                    <th>Name</th>
-                    <th>Marks</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                <tr><td colspan="4" class="no-data">Loading student data...</td></tr>
-            </tbody>
-        </table>
-    </div>
+
+<div class="header">
+    <h1>Class Performance Dashboard</h1>
     
-    <script>
-        let allStudents = [];
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQEvjAT5yBEs8T6di8jzkoQiPQdLUHieuruRzluxmq5Vy9N-u5EesxB9UQgWdGrTDmsZB8r6xBxlNAA/pub?gid=0&single=true&output=csv';
+    <div class="controls">
+        <select id="sheetSelector" onchange="fetchNewSheet()">
+            <option value="0">📅 Attendance</option>
+            <option value="538873744">🧪 EXP 1</option>
+            <option value="1743911233">🧪 EXP 2</option>
+            <option value="735020452">🧪 EXP 3</option>
+            <option value="132790111">🧪 EXP 4</option>
+            <option value="1403681896">🧪 EXP 5</option>
+            <option value="960396706">🧪 EXP 6</option>
+            <option value="657786847">🧪 EXP 7</option>
+            <option value="912535418">🧪 EXP 8</option>
+            <option value="821022304">🧪 EXP 9</option>
+            <option value="972789350">🧪 EXP 10</option>
+            <option value="1609104477">📊 Average Marks</option>
+        </select>
+
+        <input type="text" id="searchInput" placeholder="Search name..." onkeyup="applyFilters()">
+
+        <select id="filterSelector" onchange="applyFilters()">
+            <option value="default">Sort: Default</option>
+            <option value="high">Highest First</option>
+            <option value="low">Lowest First</option>
+            <option value="pass">Show Passed Only</option>
+            <option value="fail">Show Failed Only</option>
+        </select>
+    </div>
+</div>
+
+<div class="card">
+    <div id="tableContainer"></div>
+</div>
+
+<script>
+    const base = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEvjAT5yBEs8T6di8jzkoQiPQdLUHieuruRzluxmq5Vy9N-u5EesxB9UQgWdGrTDmsZB8r6xBxlNAA/pub?output=csv";
+    let currentData = [];
+    let headers = [];
+
+    async function fetchNewSheet() {
+        const gid = document.getElementById('sheetSelector').value;
+        const response = await fetch(`${base}&gid=${gid}`);
+        const text = await response.text();
+        const rows = text.split('\n').filter(r => r.trim() !== '').map(r => r.split(','));
         
-        // Load CSV data
-        async function loadData() {
-            try {
-                const response = await fetch(CSV_URL);
-                const csvText = await response.text();
-                parseCSV(csvText);
-                displayTable(allStudents);
-                updateStats();
-            } catch (error) {
-                console.error('Error loading data:', error);
-                document.getElementById('tableBody').innerHTML = 
-                    '<tr><td colspan="4" class="no-data">Error loading data from Google Sheets.</td></tr>';
-            }
-        }
+        headers = rows[0];
+        currentData = rows.slice(1);
+        applyFilters();
+    }
+
+    function applyFilters() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const filterType = document.getElementById('filterSelector').value;
+        const isAttendance = document.getElementById('sheetSelector').value === "0";
+        const threshold = isAttendance ? 75 : 10;
         
-        // Parse CSV
-        function parseCSV(csvText) {
-            const lines = csvText.trim().split('\n');
-            if (lines.length < 2) return;
-            
-            allStudents = lines.slice(1).map(line => {
-                const parts = line.split(',');
-                const roll = parts[0]?.trim() || '';
-                const name = parts[1]?.trim() || '';
-                const marks = parseInt(parts[2]?.trim()) || 0;
-                
-                return { roll, name, marks };
-            }).filter(s => s.roll && s.name);
-        }
-        
-        // Display table
-        function displayTable(students) {
-            const tbody = document.getElementById('tableBody');
-            
-            if (students.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="no-data">No students found</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = students.map(student => {
-                const status = student.marks >= 40 ? 'Pass' : 'Fail';
-                let marksClass = 'marks-average';
-                if (student.marks >= 80) marksClass = 'marks-excellent';
-                else if (student.marks >= 60) marksClass = 'marks-good';
-                
-                return `
-                    <tr>
-                        <td><span class="roll-number">${student.roll}</span></td>
-                        <td>${student.name}</td>
-                        <td><span class="${marksClass}">${student.marks}/100</span></td>
-                        <td><span class="${marksClass}">${status}</span></td>
-                    </tr>
-                `;
-            }).join('');
-        }
-        
-        // Update statistics
-        function updateStats() {
-            const total = allStudents.length;
-            const avgM = total ? Math.round(allStudents.reduce((sum, s) => sum + s.marks, 0) / total) : 0;
-            const passCount = allStudents.filter(s => s.marks >= 40).length;
-            const passRate = total ? Math.round((passCount / total) * 100) : 0;
-            const topScore = total ? Math.max(...allStudents.map(s => s.marks)) : 0;
-            
-            document.getElementById('totalStudents').textContent = total;
-            document.getElementById('avgMarks').textContent = avgM;
-            document.getElementById('passRate').textContent = passRate + '%';
-            document.getElementById('topScore').textContent = topScore;
-        }
-        
-        // Search functionality
-        document.getElementById('searchInput').addEventListener('keyup', function(e) {
-            const search = e.target.value.toLowerCase();
-            const filtered = allStudents.filter(s => 
-                s.roll.toLowerCase().includes(search) || 
-                s.name.toLowerCase().includes(search)
-            );
-            displayTable(filtered);
-        });
-        
-        // Sort functionality
-        document.getElementById('sortBy').addEventListener('change', function(e) {
-            const sortBy = e.target.value;
-            let sorted = [...allStudents];
-            
-            switch(sortBy) {
-                case 'name':
-                    sorted.sort((a, b) => a.name.localeCompare(b.name));
-                    break;
-                case 'marks':
-                    sorted.sort((a, b) => b.marks - a.marks);
-                    break;
-                default: // roll
-                    sorted.sort((a, b) => a.roll.localeCompare(b.roll));
-            }
-            
-            displayTable(sorted);
-        });
-        
-        // Download CSV
-        function downloadCSV() {
-            let csv = 'Roll Number,Name,Marks\n';
-            csv += allStudents.map(s => `${s.roll},${s.name},${s.marks}`).join('\n');
-            
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'marks.csv';
-            a.click();
-        }
-        
-        // Load data on page load
-        window.addEventListener('load', loadData);
-    </script>\n</body>
+        // Use index 1 (assuming index 0 is Name and index 1 is the primary Score)
+        const scoreIdx
