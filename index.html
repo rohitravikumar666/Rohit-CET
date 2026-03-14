@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Modelling Lab Attendance & Marks ( S4C2 B) </title>
+    <title> Modelling Lab Attendance & Marks (S4C2 B) </title>
     <style>
         :root { --primary: #2563eb; --danger: #ef4444; --success: #16a34a; --bg: #f8fafc; }
         body { font-family: sans-serif; background: var(--bg); padding: 20px; color: #1e293b; }
@@ -17,7 +17,7 @@
         button:hover { background: #1d4ed8; }
         .card { max-width: 1000px; margin: 0 auto; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { background: #f8fafc; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; color: #64748b; font-size: 13px; text-transform: uppercase; }
+        th { background: #f1f5f9; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; color: #475569; font-size: 13px; }
         td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
         .status-low { color: var(--danger); font-weight: bold; background: #fee2e2; padding: 2px 6px; border-radius: 4px; }
         .status-ok { color: var(--success); font-weight: bold; }
@@ -51,7 +51,7 @@
     <button onclick="processAndRender()">Apply Sort</button>
 </div>
 
-<div class="card" id="tableWrapper">
+<div class="card">
     <div id="tableContainer"></div>
 </div>
 
@@ -63,15 +63,19 @@
     async function fetchData() {
         const gid = document.getElementById('sheetSelector').value;
         const container = document.getElementById('tableContainer');
-        container.innerHTML = '<div class="loading">Syncing with Google Sheets...</div>';
+        container.innerHTML = '<div class="loading">Fetching data...</div>';
 
         try {
             const res = await fetch(`${csvBase}&gid=${gid}`);
             const text = await res.text();
-            const data = text.split('\n').filter(r => r.trim() !== '').map(r => r.split(','));
+            // Split into rows and remove empty ones
+            const allRows = text.split('\n').filter(r => r.trim() !== '').map(r => r.split(','));
             
-            globalHeaders = data[0];
-            globalRows = data.slice(1);
+            // HEADERS: Taking Row 2 (index 1) as the table headers
+            globalHeaders = allRows[1] || allRows[0];
+            
+            // DATA: Student data starts on Row 3 (index 2)
+            globalRows = allRows.slice(2);
             
             processAndRender();
         } catch (e) {
@@ -80,8 +84,7 @@
     }
 
     function cleanNum(val) {
-        if (val === undefined || val === null) return -1;
-        // Strip everything except numbers and decimals
+        if (!val) return -1;
         let cleaned = val.toString().replace(/[^\d.-]/g, '');
         return cleaned === '' ? -1 : parseFloat(cleaned);
     }
@@ -90,11 +93,9 @@
         const sortType = document.getElementById('sortSelector').value;
         const gid = document.getElementById('sheetSelector').value;
         const threshold = (gid === "0") ? 75 : 10;
-        
-        let dataToDisplay = [...globalRows];
+        const targetCol = 2; // Column C
 
-        // TARGET COLUMN C (Index 2)
-        const targetCol = 2; 
+        let dataToDisplay = [...globalRows];
 
         if (sortType === 'high') {
             dataToDisplay.sort((a, b) => cleanNum(b[targetCol]) - cleanNum(a[targetCol]));
@@ -111,9 +112,9 @@
             row.forEach((cell, i) => {
                 let val = cell ? cell.trim() : "";
                 let num = cleanNum(val);
-                
-                // Color logic for Column C (Index 2)
                 let style = "";
+                
+                // Color formatting logic for Column C
                 if (i === targetCol && num !== -1) {
                     style = (num < threshold) ? 'status-low' : 'status-ok';
                 }
