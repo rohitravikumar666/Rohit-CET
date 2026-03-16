@@ -23,28 +23,32 @@
         <!-- Registration Screen -->
         <div id="setup-screen" class="p-8">
             <h1 class="text-2xl font-black text-slate-800 mb-2">Civil Engineering Modelling Lab Viva</h1>
-            <p class="text-slate-500 mb-8 border-b pb-4">Comprehensive Assessment - 50 Questions</p>
+            <p class="text-slate-500 mb-8 border-b pb-4">Department of Civil Engineering</p>
             
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1">Full Name</label>
-                    <input type="text" id="student-name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Enter your name">
+                    <input type="text" id="student-name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Enter your full name">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1">Roll Number</label>
                     <input type="text" id="roll-no" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Enter roll number">
                 </div>
                 
-                <div class="bg-amber-50 p-4 rounded-xl text-sm text-amber-900 border border-amber-100 mt-4">
-                    <p class="font-bold mb-1">Exam Rules:</p>
+                <div class="bg-blue-50 p-4 rounded-xl text-sm text-blue-900 border border-blue-100 mt-4">
+                    <p class="font-bold mb-2 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Important Instructions:
+                    </p>
                     <ul class="list-disc ml-5 space-y-1">
-                        <li>12 seconds auto-timer per question.</li>
-                        <li>Scores categorized by Experiment (Out of 5).</li>
-                        <li>Submit result image via WhatsApp or Email.</li>
+                        <li><strong>12 Seconds</strong> per question (Auto-skip).</li>
+                        <li>Total 50 questions across 10 experiments.</li>
+                        <li><strong>Final Step:</strong> After completion, you must click 'Submit to Instructor'. This will download a result screenshot.</li>
+                        <li class="font-bold text-blue-700 uppercase tracking-tight">You must manually attach that screenshot to the email that opens.</li>
                     </ul>
                 </div>
 
-                <button onclick="startQuiz()" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-[0.98]">
+                <button onclick="startQuiz()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-[0.98]">
                     START ASSESSMENT
                 </button>
             </div>
@@ -53,7 +57,7 @@
         <!-- Quiz Screen -->
         <div id="quiz-screen" class="hidden">
             <div class="bg-slate-900 text-white p-6 flex justify-between items-center">
-                <div>
+                <div class="flex-1">
                     <p id="current-exp" class="text-[10px] uppercase tracking-widest text-blue-400 font-black mb-1"></p>
                     <h2 id="question-count" class="text-lg font-medium">Question 1/50</h2>
                 </div>
@@ -98,6 +102,253 @@
 
                 <table class="w-full text-xs border-collapse">
                     <thead>
+                        <tr class="bg-slate-50 text-slate-600">
+                            <th class="border p-2 text-left">Experiment Module</th>
+                            <th class="border p-2 text-center">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="res-breakdown"></tbody>
+                </table>
+                <p class="text-[8px] text-slate-400 mt-4 text-center italic">Verified Digital Result - <span id="res-date"></span></p>
+            </div>
+
+            <div class="mt-8">
+                <button onclick="handleEmailSubmission()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-5 rounded-xl flex flex-col items-center justify-center gap-1 shadow-lg transition-transform active:scale-95">
+                    <span class="flex items-center gap-2 text-lg uppercase tracking-wide">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        Submit to Instructor
+                    </span>
+                    <span class="text-[10px] font-normal opacity-90">Send to rohitravikumar@cet.ac.in</span>
+                </button>
+                <div class="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-100 text-[11px] text-yellow-800 leading-tight">
+                    <strong>CRITICAL:</strong> Once you click submit, a screenshot will download. 
+                    The email app will open. You <strong>MUST</strong> attach the downloaded screenshot 
+                    to the email manually before sending.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            // Exp 1
+            { exp: "Exp 1: Single Storey (Flat Roof)", q: "What is the AutoCAD alias for the 'Construction Line' command used for vertical projections?", o: ["C", "XL", "CL", "X"], a: 1 },
+            { exp: "Exp 1: Single Storey (Flat Roof)", q: "What is the plinth height specified in the manual for this building?", o: ["45 cm", "60 cm", "75 cm", "90 cm"], a: 1 },
+            { exp: "Exp 1: Single Storey (Flat Roof)", q: "Which command is used to remove extra line segments between walls to create a clean T-junction?", o: ["ERASE", "BREAK", "TRIM", "EXPLODE"], a: 2 },
+            { exp: "Exp 1: Single Storey (Flat Roof)", q: "Which command is used to add text labels like 'BEDROOM' and 'KITCHEN'?", o: ["T", "TEXT", "MTEXT", "All of the above"], a: 3 },
+            { exp: "Exp 1: Single Storey (Flat Roof)", q: "In architectural drawing, a 'Plan' is a section view taken at:", o: ["Roof level", "Sill level", "Plinth level", "Foundation level"], a: 1 },
+            // Exp 2
+            { exp: "Exp 2: Double Storey (Sloped Roof)", q: "What is the roof pitch angle used for the RCC sloped roof?", o: ["15°", "22.5°", "30°", "45°"], a: 2 },
+            { exp: "Exp 2: Double Storey (Sloped Roof)", q: "In the dog-legged staircase design, what is the riser height?", o: ["12 cm", "15 cm", "18 cm", "20 cm"], a: 1 },
+            { exp: "Exp 2: Double Storey (Sloped Roof)", q: "What is the tread width for the staircase in this experiment?", o: ["20 cm", "25 cm", "30 cm", "35 cm"], a: 2 },
+            { exp: "Exp 2: Double Storey (Sloped Roof)", q: "The horizontal projection of the roof beyond the wall is called:", o: ["Parapet", "Eaves", "Ridge", "Valley"], a: 1 },
+            { exp: "Exp 2: Double Storey (Sloped Roof)", q: "To draw the stairs quickly, which command replicates the tread/riser lines?", o: ["MIRROR", "ARRAY", "SCALE", "JOIN"], a: 1 },
+            // Exp 3
+            { exp: "Exp 3: Public Health Centre", q: "What is the minimum width of the central passage in a PHC for stretcher movement?", o: ["1.5 m", "1.8 m", "2.4 m", "3.0 m"], a: 2 },
+            { exp: "Exp 3: Public Health Centre", q: "Which room acts as the entry point for patients to register?", o: ["Ward", "Doctor's Room", "Lobby/Waiting", "Store"], a: 2 },
+            { exp: "Exp 3: Public Health Centre", q: "Which room must be adjacent to the Laboratory for medicine distribution?", o: ["Ward", "Dispensary", "Toilet", "Doctor's Room"], a: 1 },
+            { exp: "Exp 3: Public Health Centre", q: "What is the ceiling height for the PHC rooms?", o: ["3.0 m", "3.3 m", "3.6 m", "4.0 m"], a: 2 },
+            { exp: "Exp 3: Public Health Centre", q: "The 'Dressing Room' in a PHC is primarily used for:", o: ["Changing clothes", "Minor procedures/wound care", "Storage", "Staff rest"], a: 1 },
+            // Exp 4
+            { exp: "Exp 4: Bank Building", q: "What is the mandatory RCC wall thickness for a Bank Strong Room?", o: ["23 cm", "30 cm", "45 cm", "60 cm"], a: 1 },
+            { exp: "Exp 4: Bank Building", q: "Which specific foundation type is modeled for the bank?", o: ["Strip footing", "RCC Isolated Column Footing", "Pile", "Well"], a: 1 },
+            { exp: "Exp 4: Bank Building", q: "The entrance to the Strong Room must have a:", o: ["PVC Door", "Wooden Door", "Heavy Steel Security Door", "Glass Door"], a: 2 },
+            { exp: "Exp 4: Bank Building", q: "What is the width of the main entrance door for the bank?", o: ["1.2 m", "1.5 m", "1.8 m", "2.1 m"], a: 2 },
+            { exp: "Exp 4: Bank Building", q: "In the section, the Strong Room slab thickness is often:", o: ["10 cm", "15 cm", "20 cm", "30 cm"], a: 3 },
+            // Exp 5
+            { exp: "Exp 5: Plumbing and Sanitary", q: "What is the minimum distance between a Septic Tank and a well/building?", o: ["1.5 m", "2.0 m", "3.0 m", "5.0 m"], a: 3 },
+            { exp: "Exp 5: Plumbing and Sanitary", q: "Which pipe carries waste from the Water Closet (WC)?", o: ["Waste Pipe", "Soil Pipe", "Vent Pipe", "Rainwater Pipe"], a: 1 },
+            { exp: "Exp 5: Plumbing and Sanitary", q: "What is the diameter of the Soil Pipe mentioned in the manual?", o: ["50 mm", "75 mm", "100 mm", "150 mm"], a: 2 },
+            { exp: "Exp 5: Plumbing and Sanitary", q: "Which structure follows the Septic Tank in the drainage sequence?", o: ["Municipal Sewer", "Soak Pit", "Water Tank", "Kitchen Sink"], a: 1 },
+            { exp: "Exp 5: Plumbing and Sanitary", q: "The slope of the 100mm horizontal drainage pipe should be roughly:", o: ["1 in 10", "1 in 40", "1 in 100", "1 in 200"], a: 1 },
+            // Exp 6
+            { exp: "Exp 6: Electrical Drawing", q: "What does 'DB' represent in an electrical plan?", o: ["Data Box", "Distribution Board", "Direct Battery", "Dual Beam"], a: 1 },
+            { exp: "Exp 6: Electrical Drawing", q: "The 'Meter Box' (MB) should be located:", o: ["In the bedroom", "Near the kitchen", "Outside the building/Entrance", "On the roof"], a: 2 },
+            { exp: "Exp 6: Electrical Drawing", q: "A 'Power Point' (16A) is typically required for which appliance?", o: ["Ceiling Fan", "Tube light", "Air Conditioner/Fridge", "Doorbell"], a: 2 },
+            { exp: "Exp 6: Electrical Drawing", q: "What is the standard wattage assumed for a Ceiling Fan?", o: ["40W", "60W", "100W", "1000W"], a: 1 },
+            { exp: "Exp 6: Electrical Drawing", q: "The 'Main Switch' is located inside the:", o: ["Switch board", "Distribution board", "Meter box", "Socket"], a: 1 },
+            // Exp 7
+            { exp: "Exp 7: Scheduling & Monitoring", q: "The 'Predecessor' column in a task list is used to define:", o: ["The cost", "The logical sequence/dependencies", "Worker assigned", "Total duration"], a: 1 },
+            { exp: "Exp 7: Scheduling & Monitoring", q: "What is the standard working time per day set in the project calendar?", o: ["6 hours", "8 hours", "10 hours", "12 hours"], a: 1 },
+            { exp: "Exp 7: Scheduling & Monitoring", q: "Which view provides a visual timeline with bars representing task durations?", o: ["Resource View", "Network Diagram", "Gantt Chart", "Histogram"], a: 2 },
+            { exp: "Exp 7: Scheduling & Monitoring", q: "Under 'Resource Allocation,' what type of resource is 'Cement'?", o: ["Work", "Material", "Cost", "Equipment"], a: 1 },
+            { exp: "Exp 7: Scheduling & Monitoring", q: "Which command is used to save the original schedule to compare progress?", o: ["Save As", "Set Baseline", "Update Task", "Constraint"], a: 1 },
+            // Exp 8
+            { exp: "Exp 8: Topographic Contour Map", q: "Which file format is commonly used to import survey points?", o: [".DWG", ".CSV or .TXT", ".PDF", ".JPEG"], a: 1 },
+            { exp: "Exp 8: Topographic Contour Map", q: "What does a 'Contour Interval' represent?", o: ["Horizontal distance", "Constant vertical distance", "Boundary length", "Scale of map"], a: 1 },
+            { exp: "Exp 8: Topographic Contour Map", q: "Closely spaced contour lines on a map indicate:", o: ["Flat plain", "Gentle slope", "Steep slope or cliff", "Water body"], a: 2 },
+            { exp: "Exp 8: Topographic Contour Map", q: "A series of closed contour lines with higher values inside represents a:", o: ["Pond", "Hill", "Valley", "Depression"], a: 1 },
+            { exp: "Exp 8: Topographic Contour Map", q: "The process of estimating elevations between known points is:", o: ["Extrapolation", "Interpolation", "Triangulation", "Integration"], a: 1 },
+            // Exp 9
+            { exp: "Exp 9: Earthwork Analysis", q: "The 'Cut and Fill' method is used to determine:", o: ["Building height", "Volume of soil added/removed", "Number of bricks", "Water table depth"], a: 1 },
+            { exp: "Exp 9: Earthwork Analysis", q: "A 'Formation Level' represents:", o: ["Existing level", "Desired final level", "Roof height", "Basement level"], a: 1 },
+            { exp: "Exp 9: Earthwork Analysis", q: "If GL is 105.0m and FL is 103.5m, it results in:", o: ["Fill", "Cut", "No earthwork", "Compaction"], a: 1 },
+            { exp: "Exp 9: Earthwork Analysis", q: "In software, what is the expression for area computation ?", o: ["#area", "@area", "$area", "#area#"], a: 0 },
+            { exp: "Exp 9: Earthwork Analysis", q: "To calculate volume between two surfaces, you must define:", o: ["Base & Comparison Surfaces", "Only boundary", "Number of points", "Color of map"], a: 0 },
+            // Exp 10
+            { exp: "Exp 10: EPANET Analysis", q: "What is the 'Base Demand' at a junction?", o: ["Diameter", "Avg consumption", "Elevation", "Max pressure"], a: 1 },
+            { exp: "Exp 10: EPANET Analysis", q: "Which headloss formula is set in the Project Defaults?", o: ["Darcy-Weisbach", "Manning's", "Hazen-Williams (H-W)", "Chezy's"], a: 2 },
+            { exp: "Exp 10: EPANET Analysis", q: "The 'Global Bulk Coefficient' for Chlorine reaction is set to:", o: ["0.5", "-0.5", "1.0", "-1.0"], a: 1 },
+            { exp: "Exp 10: EPANET Analysis", q: "A 'Time Pattern' is used in EPANET to:", o: ["Change material", "Model 24-hr demand changes", "Set clock", "Speed up simulation"], a: 1 },
+            { exp: "Exp 10: EPANET Analysis", q: "Which browser tab is used to view color-coded maps of pressure?", o: ["Data tab", "Map tab", "Reports tab", "Options tab"], a: 1 }
+        ];
+
+        let state = {
+            currentIndex: 0,
+            scores: Array(10).fill(0),
+            timeLeft: 12,
+            timer: null,
+            student: { name: '', roll: '' }
+        };
+
+        function startQuiz() {
+            state.student.name = document.getElementById('student-name').value.trim();
+            state.student.roll = document.getElementById('roll-no').value.trim();
+
+            if (!state.student.name || !state.student.roll) {
+                alert("Please enter both Name and Roll Number.");
+                return;
+            }
+
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            if (state.currentIndex >= quizData.length) {
+                showResults();
+                return;
+            }
+
+            const q = quizData[state.currentIndex];
+            document.getElementById('current-exp').innerText = q.exp;
+            document.getElementById('question-count').innerText = `Question ${state.currentIndex + 1} of 50`;
+            document.getElementById('question-text').innerText = q.q;
+            
+            const prefixes = ["A", "B", "C", "D"];
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.o.forEach((option, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = `
+                    <span class="option-prefix">${prefixes[idx]}</span>
+                    <span>${option}</span>
+                `;
+                btn.onclick = () => selectOption(idx);
+                container.appendChild(btn);
+            });
+
+            resetTimer();
+        }
+
+        function resetTimer() {
+            clearInterval(state.timer);
+            state.timeLeft = 12;
+            const ring = document.getElementById('timer-ring');
+            const text = document.getElementById('timer-text');
+            
+            const updateUI = () => {
+                text.innerText = state.timeLeft;
+                const offset = 150.8 - (state.timeLeft / 12) * 150.8;
+                ring.style.strokeDashoffset = offset;
+            };
+
+            updateUI();
+            state.timer = setInterval(() => {
+                state.timeLeft--;
+                updateUI();
+                if (state.timeLeft <= 0) {
+                    clearInterval(state.timer);
+                    nextQuestion();
+                }
+            }, 1000);
+        }
+
+        function selectOption(idx) {
+            const q = quizData[state.currentIndex];
+            const expIndex = Math.floor(state.currentIndex / 5);
+            if (idx === q.a) {
+                state.scores[expIndex]++;
+            }
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            state.currentIndex++;
+            renderQuestion();
+        }
+
+        function showResults() {
+            clearInterval(state.timer);
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            document.getElementById('res-name').innerText = state.student.name;
+            document.getElementById('res-roll').innerText = state.student.roll;
+            document.getElementById('res-date').innerText = new Date().toLocaleString();
+
+            const total = state.scores.reduce((a, b) => a + b, 0);
+            document.getElementById('res-total').innerText = total;
+            
+            const statusEl = document.getElementById('res-status');
+            if (total >= 25) {
+                statusEl.innerText = "PASS";
+                statusEl.className = "text-2xl font-black text-emerald-500";
+            } else {
+                statusEl.innerText = "FAIL";
+                statusEl.className = "text-2xl font-black text-rose-500";
+            }
+
+            const breakdown = document.getElementById('res-breakdown');
+            breakdown.innerHTML = '';
+            state.scores.forEach((score, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="border p-2">Experiment ${i+1}</td>
+                    <td class="border p-2 text-center font-bold">${score}/5</td>
+                `;
+                breakdown.appendChild(tr);
+            });
+        }
+
+        function handleEmailSubmission() {
+            const area = document.getElementById('capture-area');
+            const total = state.scores.reduce((a, b) => a + b, 0);
+            const rollClean = state.student.roll.replace(/\s/g, '_');
+            
+            html2canvas(area, { scale: 2 }).then(canvas => {
+                // Trigger download
+                const link = document.createElement('a');
+                link.download = `VivaResult_${rollClean}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+
+                // Build mailto
+                const recipient = "rohitravikumar@cet.ac.in";
+                const subject = `Viva Result: ${state.student.name} (${state.student.roll})`;
+                const body = `Respected Instructor,\n\nI have completed the Civil Engineering Modelling Lab Viva Assessment.\n\n` +
+                             `Name: ${state.student.name}\n` +
+                             `Roll No: ${state.student.roll}\n` +
+                             `Total Marks: ${total}/50\n\n` +
+                             `[IMPORTANT]: I have attached the screenshot of my detailed scorecard (VivaResult_${rollClean}.png) to this email.\n\n` +
+                             `Thank you.`;
+
+                const mailUrl = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                
+                // Alert first, then open mail
+                setTimeout(() => {
+                    window.location.href = mailUrl;
+                    alert("A screenshot of your results has been downloaded.\n\nINSTRUCTIONS:\n1. Open the email app (started now).\n2. Attach the image 'VivaResult_" + rollClean + ".png' from your downloads folder.\n3. Send the email to complete the submission.");
+                }, 500);
+            });
+        }
+    </script>
+</body>
+</html>
+
                         <tr class="bg-slate-50 text-slate-600">
                             <th class="border p-2 text-left">Experiment Module</th>
                             <th class="border p-2 text-center">Score</th>
