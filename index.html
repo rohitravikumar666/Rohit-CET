@@ -3,132 +3,442 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modelling Lab Attendance & Marks (S4C2 B)</title>
+    <title>Modelling Lab Quiz - Rohit Ravikumar</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --primary: #2563eb; --danger: #ef4444; --success: #16a34a; --bg: #f8fafc; }
-        body { font-family: sans-serif; background: var(--bg); padding: 20px; color: #1e293b; }
-        .controls { 
-            display: flex; flex-wrap: wrap; gap: 10px; background: white; 
-            padding: 15px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 20px; max-width: 1000px; margin: 0 auto 20px auto; align-items: center;
-        }
-        select, button { padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 14px; }
-        button { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; min-width: 120px; }
-        button:hover { background: #1d4ed8; }
-        .card { max-width: 1000px; margin: 0 auto; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { background: #f1f5f9; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; color: #475569; font-size: 13px; }
-        td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-        .status-low { color: var(--danger); font-weight: bold; background: #fee2e2; padding: 2px 6px; border-radius: 4px; }
-        .status-ok { color: var(--success); font-weight: bold; }
-        .loading { padding: 40px; text-align: center; color: #64748b; font-style: italic; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50">
+    <div id="root"></div>
 
-<div class="controls">
-    <select id="sheetSelector" onchange="fetchData()">
-        <option value="0">Attendance</option>
-        <option value="538873744">EXP 1</option>
-        <option value="1743911233">EXP 2</option>
-        <option value="735020452">EXP 3</option>
-        <option value="132790111">EXP 4</option>
-        <option value="1403681896">EXP 5</option>
-        <option value="960396706">EXP 6</option>
-        <option value="657786847">EXP 7</option>
-        <option value="912535418">EXP 8</option>
-        <option value="821022304">EXP 9</option>
-        <option value="972789350">EXP 10</option>
-        <option value="1609104477">Average Marks</option>
-    </select>
+    <script type="text/babel">
+        const INSTRUCTOR_EMAIL = "rohitravikumar@cet.ac.in";
 
-    <select id="sortSelector">
-        <option value="none">Original Order</option>
-        <option value="high">Highest (Col C)</option>
-        <option value="low">Lowest (Col C)</option>
-    </select>
+        const { useState, useEffect } = React;
 
-    <button onclick="processAndRender()">Apply Sort</button>
-</div>
+        const QUIZ_DATA = [
+            { topic: "Exp 1: Single Storey", questions: [
+                { q: "AutoCAD alias for 'Construction Line'?", a: ["C", "XL", "CL", "X"], c: 1 },
+                { q: "Plinth height specified in the manual?", a: ["45 cm", "60 cm", "75 cm", "90 cm"], c: 0 },
+                { q: "Command used to clean wall T-junctions?", a: ["ERASE", "BREAK", "TRIM", "EXPLODE"], c: 2 },
+                { q: "Command used to add labels like 'BEDROOM'?", a: ["T", "TEXT", "MTEXT", "All of the above"], c: 3 },
+                { q: "An architectural 'Plan' is a section view at:", a: ["Roof level", "Sill level", "Plinth level", "Foundation"], c: 1 }
+            ]},
+            { topic: "Exp 2: Double Storey", questions: [
+                { q: "Roof pitch angle used for RCC sloped roof?", a: ["15°", "22.5°", "30°", "45°"], c: 2 },
+                { q: "Riser height for dog-legged staircase?", a: ["12 cm", "15 cm", "18 cm", "20 cm"], c: 1 },
+                { q: "Tread width for the staircase?", a: ["20 cm", "25 cm", "30 cm", "35 cm"], c: 2 },
+                { q: "Horizontal projection of roof beyond wall:", a: ["Parapet", "Eaves", "Ridge", "Valley"], c: 1 },
+                { q: "Standard thickness of RCC sloped roof slab?", a: ["10 cm", "12 cm", "15 cm", "20 cm"], c: 2 }
+            ]},
+            { topic: "Exp 3: PHC Building", questions: [
+                { q: "Min width of central passage for stretcher?", a: ["1.5 m", "1.8 m", "2.4 m", "3.0 m"], c: 2 },
+                { q: "Plinth height for the PHC?", a: ["60 cm", "75 cm", "90 cm", "120 cm"], c: 1 },
+                { q: "Room adjacent to Lab for medicines?", a: ["Ward", "Dispensary", "Toilet", "Doctor's Room"], c: 1 },
+                { q: "Ceiling height for the PHC rooms?", a: ["3.0 m", "3.3 m", "3.6 m", "4.0 m"], c: 2 },
+                { q: "Section line A-A in PHC passes through:", a: ["Toilet", "Ward & Passage", "Only Lobby", "Yard"], c: 1 }
+            ]},
+            { topic: "Exp 4: Bank Building", questions: [
+                { q: "Mandatory RCC wall thickness for Strong Room?", a: ["23 cm", "30 cm", "45 cm", "60 cm"], c: 2 },
+                { q: "Max center-to-center spacing for bank columns?", a: ["4.0 m", "5.0 m", "6.0 m", "8.0 m"], c: 2 },
+                { q: "Foundation type modeled for the bank?", a: ["Strip", "RCC Isolated Footing", "Pile", "Well"], c: 1 },
+                { q: "Entrance to Strong Room must have a:", a: ["PVC Door", "Wooden Door", "Steel Security Door", "Glass"], c: 2 },
+                { q: "Hatch pattern used for RCC members?", a: ["ANSI31", "AR-CONC", "SOLID", "GRAVEL"], c: 1 }
+            ]},
+            { topic: "Exp 5: Plumbing", questions: [
+                { q: "Min distance between Septic Tank and well?", a: ["1.5 m", "2.0 m", "3.0 m", "5.0 m"], c: 3 },
+                { q: "Pipe carrying waste from Water Closet?", a: ["Waste", "Soil", "Vent", "Rainwater"], c: 1 },
+                { q: "Diameter of Soil Pipe mentioned in manual?", a: ["50 mm", "75 mm", "100 mm", "150 mm"], c: 2 },
+                { q: "Gully Trap provided at junction of:", a: ["Soil/Sewer", "Waste/Sewer", "Two soil pipes", "Roof"], c: 1 },
+                { q: "Structure following Septic Tank?", a: ["Sink", "Soak Pit", "Tank", "Municipal Main"], c: 1 }
+            ]},
+            { topic: "Exp 6: Electrical", questions: [
+                { q: "What does 'DB' stand for in electrical plans?", a: ["Data Box", "Distribution Board", "Battery", "Beam"], c: 1 },
+                { q: "Mounting height for Switch Board from floor?", a: ["1.0 m", "1.2 m", "1.5 m", "1.8 m"], c: 2 },
+                { q: "Ideal location for the Meter Box (MB)?", a: ["Bedroom", "Kitchen", "Outside/Entrance", "Roof"], c: 2 },
+                { q: "Why use separate circuits for Light and Power?", a: ["Save wire", "Safety/Overloading", "KSEB rule", "Color"], c: 1 },
+                { q: "AutoCAD command to create reusable symbols?", a: ["GROUP", "BLOCK", "COPY", "WBLOCK"], c: 1 }
+            ]},
+            { topic: "Exp 7: 3D Basic", questions: [
+                { q: "Command to give height to 2D closed area?", a: ["ELEV", "EXTRUDE", "THICKNESS", "SCALE"], c: 1 },
+                { q: "3D command to create a window 'hole'?", a: ["UNION", "SUBTRACT", "INTERSECT", "SLICE"], c: 1 },
+                { q: "Command to merge overlapping solids?", a: ["JOIN", "UNION", "ATTACH", "GROUP"], c: 1 },
+                { q: "Visual Style showing model like skeleton?", a: ["Realistic", "Shaded", "2D Wireframe", "X-Ray"], c: 2 },
+                { q: "Command to create solid by rotating a shape?", a: ["EXTRUDE", "REVOLVE", "SWEEP", "LOFT"], c: 1 }
+            ]},
+            { topic: "Exp 8: 3D Building", questions: [
+                { q: "To extrude walls, 2D lines must be:", a: ["Layer", "Region/Polyline", "Block", "Spline"], c: 1 },
+                { q: "Door opening created at floor level via:", a: ["Extrude & SUBTRACT", "TRIM", "Delete", "ERASE"], c: 0 },
+                { q: "Apply textures like 'Grass' via:", a: ["Hatch", "Materials Browser", "Render", "Paint"], c: 1 },
+                { q: "Command to cut 3D solid into pieces?", a: ["BREAK", "SLICE", "TRIM", "SUBTRACT"], c: 1 },
+                { q: "3D 'Window Glass' requires property:", a: ["Reflectivity", "Transparency", "Glow", "Roughness"], c: 1 }
+            ]},
+            { topic: "Exp 9: Earthwork", questions: [
+                { q: "What is 'Formation Level'?", a: ["Ground", "Desired Final Level", "Roof", "Found."], c: 1 },
+                { q: "GL = 105m, FL = 103.5m results in:", a: ["Fill", "Cut", "No earth", "Compaction"], c: 1 },
+                { q: "Expression for area computation?", a: ["#area", "@area", "$area", "#area#"], c: 3 },
+                { q: "Calculate volume between two surfaces:", a: ["Base & Comparison", "Boundary", "Points", "Color"], c: 0 },
+                { q: "What does 'Cut' represent in earthwork?", a: ["Added soil", "Soil removed", "Bricks", "Water"], c: 1 }
+            ]},
+            { topic: "Exp 10: EPANET", questions: [
+                { q: "What is 'Base Demand' at junction?", a: ["Diameter", "Avg Consumption", "Elevation", "Pressure"], c: 1 },
+                { q: "Headloss formula used in manual?", a: ["Darcy", "Manning's", "H-W", "Chezy"], c: 2 },
+                { q: "Global Bulk Coeff for Chlorine?", a: ["0.5", "-0.5", "1.0", "-1.0"], c: 1 },
+                { q: "What does 'Time Pattern' model?", a: ["Material", "24h Demand Change", "Pressure", "Pump"], c: 1 },
+                { q: "Icon to run hydraulic simulation?", a: ["Save", "Lightning Bolt", "Search", "Print"], c: 1 }
+            ]}
+        ];
 
-<div class="card">
-    <div id="tableContainer"></div>
-</div>
+        const ALL_QUESTIONS = QUIZ_DATA.flatMap((t, tIdx) => 
+            t.questions.map(q => ({ ...q, topicName: t.topic, topicIdx: tIdx }))
+        );
 
-<script>
-    const csvBase = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEvjAT5yBEs8T6di8jzkoQiPQdLUHieuruRzluxmq5Vy9N-u5EesxB9UQgWdGrTDmsZB8r6xBxlNAA/pub?output=csv";
-    let globalHeaders = [];
-    let globalRows = [];
+        function App() {
+            const [view, setView] = useState('start');
+            const [student, setStudent] = useState({ name: '', reg: '' });
+            const [currentQ, setCurrentQ] = useState(0);
+            const [answers, setAnswers] = useState([]);
+            const [timer, setTimer] = useState(12);
 
-    async function fetchData() {
-        const gid = document.getElementById('sheetSelector').value;
-        const container = document.getElementById('tableContainer');
-        container.innerHTML = '<div class="loading">Fetching data...</div>';
+            useEffect(() => {
+                if (view !== 'quiz') return;
+                const interval = setInterval(() => {
+                    setTimer(t => {
+                        if (t <= 1) { nextQuestion(null); return 12; }
+                        return t - 1;
+                    });
+                }, 1000);
+                return () => clearInterval(interval);
+            }, [view, currentQ]);
 
-        try {
-            const res = await fetch(`${csvBase}&gid=${gid}`);
-            const text = await res.text();
-            // Split into rows and remove empty ones
-            const allRows = text.split('\n').filter(r => r.trim() !== '').map(r => r.split(','));
-            
-            // HEADERS: Taking Row 2 (index 1) as the table headers
-            globalHeaders = allRows[1] || allRows[0];
-            
-            // DATA: Student data starts on Row 3 (index 2)
-            globalRows = allRows.slice(2);
-            
-            processAndRender();
-        } catch (e) {
-            container.innerHTML = '<div class="loading">Connection Error. Is the sheet published?</div>';
-        }
-    }
-
-    function cleanNum(val) {
-        if (!val) return -1;
-        let cleaned = val.toString().replace(/[^\d.-]/g, '');
-        return cleaned === '' ? -1 : parseFloat(cleaned);
-    }
-
-    function processAndRender() {
-        const sortType = document.getElementById('sortSelector').value;
-        const gid = document.getElementById('sheetSelector').value;
-        const threshold = (gid === "0") ? 75 : 10;
-        const targetCol = 2; // Column C
-
-        let dataToDisplay = [...globalRows];
-
-        if (sortType === 'high') {
-            dataToDisplay.sort((a, b) => cleanNum(b[targetCol]) - cleanNum(a[targetCol]));
-        } else if (sortType === 'low') {
-            dataToDisplay.sort((a, b) => cleanNum(a[targetCol]) - cleanNum(b[targetCol]));
-        }
-
-        let html = '<table><thead><tr>';
-        globalHeaders.forEach(h => html += `<th>${h}</th>`);
-        html += '</tr></thead><tbody>';
-
-        dataToDisplay.forEach(row => {
-            html += '<tr>';
-            row.forEach((cell, i) => {
-                let val = cell ? cell.trim() : "";
-                let num = cleanNum(val);
-                let style = "";
-                
-                // Color formatting logic for Column C
-                if (i === targetCol && num !== -1) {
-                    style = (num < threshold) ? 'status-low' : 'status-ok';
+            const nextQuestion = (idx) => {
+                const newAnswers = [...answers];
+                newAnswers[currentQ] = idx;
+                setAnswers(newAnswers);
+                if (currentQ < ALL_QUESTIONS.length - 1) {
+                    setCurrentQ(currentQ + 1);
+                    setTimer(12);
+                } else {
+                    setView('end');
                 }
-                
-                html += `<td><span class="${style}">${val}</span></td>`;
-            });
-            html += '</tr>';
-        });
+            };
 
-        html += '</tbody></table>';
-        document.getElementById('tableContainer').innerHTML = html;
-    }
+            const sendEmail = () => {
+                const total = answers.reduce((acc, val, i) => acc + (val === ALL_QUESTIONS[i].c ? 1 : 0), 0);
+                const breakdown = QUIZ_DATA.map((topic, i) => {
+                    const score = ALL_QUESTIONS.filter(q => q.topicIdx === i).reduce((acc, q) => acc + (answers[ALL_QUESTIONS.indexOf(q)] === q.c ? 1 : 0), 0);
+                    return `${topic.topic}: ${score}/5`;
+                }).join('%0D%0A');
 
-    window.onload = fetchData;
-</script>
+                const body = `Student Name: ${student.name}%0D%0ARegister No: ${student.reg}%0D%0ATotal Score: ${total}/50%0D%0A%0D%0ABreakdown:%0D%0A${breakdown}`;
+                const subject = `Modelling Lab Result - ${student.reg} - ${student.name}`;
+                window.location.href = `mailto:${INSTRUCTOR_EMAIL}?subject=${encodeURIComponent(subject)}&body=${body}`;
+            };
+
+            if (view === 'start') return (
+                <div className="flex items-center justify-center min-h-screen p-4 bg-slate-100">
+                    <div className="bg-white p-8 rounded-3xl shadow-xl max-w-sm w-full border border-slate-200">
+                        <div className="w-16 h-1 bg-blue-600 mb-6 rounded-full"></div>
+                        <h1 className="text-2xl font-black text-slate-800 mb-2">Modelling Lab</h1>
+                        <p className="text-slate-500 mb-8 text-sm leading-relaxed">Continuous Evaluation Quiz. 50 Questions, 12s limit for each.</p>
+                        
+                        <div className="space-y-4 mb-8">
+                            <input placeholder="Full Name" className="w-full p-4 border-2 border-slate-100 rounded-2xl focus:border-blue-500 outline-none transition-all" onChange={e => setStudent({...student, name: e.target.value})} />
+                            <input placeholder="Register Number" className="w-full p-4 border-2 border-slate-100 rounded-2xl focus:border-blue-500 outline-none transition-all" onChange={e => setStudent({...student, reg: e.target.value})} />
+                        </div>
+
+                        <button disabled={!student.name || !student.reg} onClick={() => setView('quiz')} className="w-full py-4 bg-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all disabled:opacity-50">
+                            Start Exam
+                        </button>
+                    </div>
+                </div>
+            );
+
+            if (view === 'quiz') return (
+                <div className="max-w-xl mx-auto py-12 px-4">
+                    <div className="flex justify-between items-center mb-8">
+                        <div>
+                            <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">{ALL_QUESTIONS[currentQ].topicName}</p>
+                            <p className="text-xs font-bold text-slate-400">Question {currentQ + 1} of 50</p>
+                        </div>
+                        <div className={`w-12 h-12 rounded-full border-4 flex items-center justify-center font-mono font-bold ${timer < 5 ? 'border-red-500 text-red-500 animate-pulse' : 'border-slate-200 text-slate-700'}`}>
+                            {timer}
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 mb-8 min-h-[400px] flex flex-col justify-between">
+                        <h2 className="text-xl font-bold text-slate-800 leading-snug mb-8">{ALL_QUESTIONS[currentQ].q}</h2>
+                        <div className="space-y-3">
+                            {ALL_QUESTIONS[currentQ].a.map((opt, i) => (
+                                <button key={i} onClick={() => nextQuestion(i)} className="w-full p-4 text-left border-2 border-slate-50 rounded-2xl hover:border-blue-500 hover:bg-blue-50 transition-all font-medium text-slate-700 active:bg-blue-100">
+                                    {opt}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-blue-600 h-full transition-all duration-500" style={{width: `${(currentQ/50)*100}%`}}></div>
+                    </div>
+                </div>
+            );
+
+            if (view === 'end') {
+                const total = answers.reduce((acc, val, i) => acc + (val === ALL_QUESTIONS[i].c ? 1 : 0), 0);
+                return (
+                    <div className="flex items-center justify-center min-h-screen p-4">
+                        <div className="bg-white p-10 rounded-[2.5rem] shadow-2xl text-center max-w-sm w-full border border-slate-100">
+                            <div className="inline-flex items-center justify-center w-20 h-20 bg-green-50 text-green-500 rounded-full mb-6">
+                                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <h2 className="text-3xl font-black text-slate-800 mb-2">Done!</h2>
+                            <p className="text-slate-500 mb-8 font-medium">Exam submitted locally. Please sync your marks now.</p>
+                            
+                            <div className="bg-slate-50 p-6 rounded-3xl mb-8 border border-slate-100">
+                                <p className="text-xs font-bold text-slate-400 uppercase mb-1">Total Score</p>
+                                <p className="text-5xl font-black text-blue-600">{total}<span className="text-xl text-slate-300"> / 50</span></p>
+                            </div>
+
+                            <button onClick={sendEmail} className="w-full py-5 bg-blue-600 text-white font-bold rounded-2xl shadow-xl shadow-blue-100 hover:bg-blue-700 active:scale-95 transition-all mb-4">
+                                Sync Marks to Instructor
+                            </button>
+                            <p className="text-[10px] text-slate-400 leading-relaxed font-medium">Clicking this will open your email app. <br/>Send the auto-generated email to complete submission.</p>
+                        </div>
+                    </div>
+                );
+            }
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modelling Lab Quiz - Rohit Ravikumar</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const INSTRUCTOR_EMAIL = "rohitravikumar@cet.ac.in";
+
+        const { useState, useEffect } = React;
+
+        const QUIZ_DATA = [
+            { topic: "Exp 1: Single Storey", questions: [
+                { q: "AutoCAD alias for 'Construction Line'?", a: ["C", "XL", "CL", "X"], c: 1 },
+                { q: "Plinth height specified in the manual?", a: ["45 cm", "60 cm", "75 cm", "90 cm"], c: 0 },
+                { q: "Command used to clean wall T-junctions?", a: ["ERASE", "BREAK", "TRIM", "EXPLODE"], c: 2 },
+                { q: "Command used to add labels like 'BEDROOM'?", a: ["T", "TEXT", "MTEXT", "All of the above"], c: 3 },
+                { q: "An architectural 'Plan' is a section view at:", a: ["Roof level", "Sill level", "Plinth level", "Foundation"], c: 1 }
+            ]},
+            { topic: "Exp 2: Double Storey", questions: [
+                { q: "Roof pitch angle used for RCC sloped roof?", a: ["15°", "22.5°", "30°", "45°"], c: 2 },
+                { q: "Riser height for dog-legged staircase?", a: ["12 cm", "15 cm", "18 cm", "20 cm"], c: 1 },
+                { q: "Tread width for the staircase?", a: ["20 cm", "25 cm", "30 cm", "35 cm"], c: 2 },
+                { q: "Horizontal projection of roof beyond wall:", a: ["Parapet", "Eaves", "Ridge", "Valley"], c: 1 },
+                { q: "Standard thickness of RCC sloped roof slab?", a: ["10 cm", "12 cm", "15 cm", "20 cm"], c: 2 }
+            ]},
+            { topic: "Exp 3: PHC Building", questions: [
+                { q: "Min width of central passage for stretcher?", a: ["1.5 m", "1.8 m", "2.4 m", "3.0 m"], c: 2 },
+                { q: "Plinth height for the PHC?", a: ["60 cm", "75 cm", "90 cm", "120 cm"], c: 1 },
+                { q: "Room adjacent to Lab for medicines?", a: ["Ward", "Dispensary", "Toilet", "Doctor's Room"], c: 1 },
+                { q: "Ceiling height for the PHC rooms?", a: ["3.0 m", "3.3 m", "3.6 m", "4.0 m"], c: 2 },
+                { q: "Section line A-A in PHC passes through:", a: ["Toilet", "Ward & Passage", "Only Lobby", "Yard"], c: 1 }
+            ]},
+            { topic: "Exp 4: Bank Building", questions: [
+                { q: "Mandatory RCC wall thickness for Strong Room?", a: ["23 cm", "30 cm", "45 cm", "60 cm"], c: 2 },
+                { q: "Max center-to-center spacing for bank columns?", a: ["4.0 m", "5.0 m", "6.0 m", "8.0 m"], c: 2 },
+                { q: "Foundation type modeled for the bank?", a: ["Strip", "RCC Isolated Footing", "Pile", "Well"], c: 1 },
+                { q: "Entrance to Strong Room must have a:", a: ["PVC Door", "Wooden Door", "Steel Security Door", "Glass"], c: 2 },
+                { q: "Hatch pattern used for RCC members?", a: ["ANSI31", "AR-CONC", "SOLID", "GRAVEL"], c: 1 }
+            ]},
+            { topic: "Exp 5: Plumbing", questions: [
+                { q: "Min distance between Septic Tank and well?", a: ["1.5 m", "2.0 m", "3.0 m", "5.0 m"], c: 3 },
+                { q: "Pipe carrying waste from Water Closet?", a: ["Waste", "Soil", "Vent", "Rainwater"], c: 1 },
+                { q: "Diameter of Soil Pipe mentioned in manual?", a: ["50 mm", "75 mm", "100 mm", "150 mm"], c: 2 },
+                { q: "Gully Trap provided at junction of:", a: ["Soil/Sewer", "Waste/Sewer", "Two soil pipes", "Roof"], c: 1 },
+                { q: "Structure following Septic Tank?", a: ["Sink", "Soak Pit", "Tank", "Municipal Main"], c: 1 }
+            ]},
+            { topic: "Exp 6: Electrical", questions: [
+                { q: "What does 'DB' stand for in electrical plans?", a: ["Data Box", "Distribution Board", "Battery", "Beam"], c: 1 },
+                { q: "Mounting height for Switch Board from floor?", a: ["1.0 m", "1.2 m", "1.5 m", "1.8 m"], c: 2 },
+                { q: "Ideal location for the Meter Box (MB)?", a: ["Bedroom", "Kitchen", "Outside/Entrance", "Roof"], c: 2 },
+                { q: "Why use separate circuits for Light and Power?", a: ["Save wire", "Safety/Overloading", "KSEB rule", "Color"], c: 1 },
+                { q: "AutoCAD command to create reusable symbols?", a: ["GROUP", "BLOCK", "COPY", "WBLOCK"], c: 1 }
+            ]},
+            { topic: "Exp 7: 3D Basic", questions: [
+                { q: "Command to give height to 2D closed area?", a: ["ELEV", "EXTRUDE", "THICKNESS", "SCALE"], c: 1 },
+                { q: "3D command to create a window 'hole'?", a: ["UNION", "SUBTRACT", "INTERSECT", "SLICE"], c: 1 },
+                { q: "Command to merge overlapping solids?", a: ["JOIN", "UNION", "ATTACH", "GROUP"], c: 1 },
+                { q: "Visual Style showing model like skeleton?", a: ["Realistic", "Shaded", "2D Wireframe", "X-Ray"], c: 2 },
+                { q: "Command to create solid by rotating a shape?", a: ["EXTRUDE", "REVOLVE", "SWEEP", "LOFT"], c: 1 }
+            ]},
+            { topic: "Exp 8: 3D Building", questions: [
+                { q: "To extrude walls, 2D lines must be:", a: ["Layer", "Region/Polyline", "Block", "Spline"], c: 1 },
+                { q: "Door opening created at floor level via:", a: ["Extrude & SUBTRACT", "TRIM", "Delete", "ERASE"], c: 0 },
+                { q: "Apply textures like 'Grass' via:", a: ["Hatch", "Materials Browser", "Render", "Paint"], c: 1 },
+                { q: "Command to cut 3D solid into pieces?", a: ["BREAK", "SLICE", "TRIM", "SUBTRACT"], c: 1 },
+                { q: "3D 'Window Glass' requires property:", a: ["Reflectivity", "Transparency", "Glow", "Roughness"], c: 1 }
+            ]},
+            { topic: "Exp 9: Earthwork", questions: [
+                { q: "What is 'Formation Level'?", a: ["Ground", "Desired Final Level", "Roof", "Found."], c: 1 },
+                { q: "GL = 105m, FL = 103.5m results in:", a: ["Fill", "Cut", "No earth", "Compaction"], c: 1 },
+                { q: "Expression for area computation?", a: ["#area", "@area", "$area", "#area#"], c: 3 },
+                { q: "Calculate volume between two surfaces:", a: ["Base & Comparison", "Boundary", "Points", "Color"], c: 0 },
+                { q: "What does 'Cut' represent in earthwork?", a: ["Added soil", "Soil removed", "Bricks", "Water"], c: 1 }
+            ]},
+            { topic: "Exp 10: EPANET", questions: [
+                { q: "What is 'Base Demand' at junction?", a: ["Diameter", "Avg Consumption", "Elevation", "Pressure"], c: 1 },
+                { q: "Headloss formula used in manual?", a: ["Darcy", "Manning's", "H-W", "Chezy"], c: 2 },
+                { q: "Global Bulk Coeff for Chlorine?", a: ["0.5", "-0.5", "1.0", "-1.0"], c: 1 },
+                { q: "What does 'Time Pattern' model?", a: ["Material", "24h Demand Change", "Pressure", "Pump"], c: 1 },
+                { q: "Icon to run hydraulic simulation?", a: ["Save", "Lightning Bolt", "Search", "Print"], c: 1 }
+            ]}
+        ];
+
+        const ALL_QUESTIONS = QUIZ_DATA.flatMap((t, tIdx) => 
+            t.questions.map(q => ({ ...q, topicName: t.topic, topicIdx: tIdx }))
+        );
+
+        function App() {
+            const [view, setView] = useState('start');
+            const [student, setStudent] = useState({ name: '', reg: '' });
+            const [currentQ, setCurrentQ] = useState(0);
+            const [answers, setAnswers] = useState([]);
+            const [timer, setTimer] = useState(12);
+
+            useEffect(() => {
+                if (view !== 'quiz') return;
+                const interval = setInterval(() => {
+                    setTimer(t => {
+                        if (t <= 1) { nextQuestion(null); return 12; }
+                        return t - 1;
+                    });
+                }, 1000);
+                return () => clearInterval(interval);
+            }, [view, currentQ]);
+
+            const nextQuestion = (idx) => {
+                const newAnswers = [...answers];
+                newAnswers[currentQ] = idx;
+                setAnswers(newAnswers);
+                if (currentQ < ALL_QUESTIONS.length - 1) {
+                    setCurrentQ(currentQ + 1);
+                    setTimer(12);
+                } else {
+                    setView('end');
+                }
+            };
+
+            const sendEmail = () => {
+                const total = answers.reduce((acc, val, i) => acc + (val === ALL_QUESTIONS[i].c ? 1 : 0), 0);
+                const breakdown = QUIZ_DATA.map((topic, i) => {
+                    const score = ALL_QUESTIONS.filter(q => q.topicIdx === i).reduce((acc, q) => acc + (answers[ALL_QUESTIONS.indexOf(q)] === q.c ? 1 : 0), 0);
+                    return `${topic.topic}: ${score}/5`;
+                }).join('%0D%0A');
+
+                const body = `Student Name: ${student.name}%0D%0ARegister No: ${student.reg}%0D%0ATotal Score: ${total}/50%0D%0A%0D%0ABreakdown:%0D%0A${breakdown}`;
+                const subject = `Modelling Lab Result - ${student.reg} - ${student.name}`;
+                window.location.href = `mailto:${INSTRUCTOR_EMAIL}?subject=${encodeURIComponent(subject)}&body=${body}`;
+            };
+
+            if (view === 'start') return (
+                <div className="flex items-center justify-center min-h-screen p-4 bg-slate-100">
+                    <div className="bg-white p-8 rounded-3xl shadow-xl max-w-sm w-full border border-slate-200">
+                        <div className="w-16 h-1 bg-blue-600 mb-6 rounded-full"></div>
+                        <h1 className="text-2xl font-black text-slate-800 mb-2">Modelling Lab</h1>
+                        <p className="text-slate-500 mb-8 text-sm leading-relaxed">Continuous Evaluation Quiz. 50 Questions, 12s limit for each.</p>
+                        
+                        <div className="space-y-4 mb-8">
+                            <input placeholder="Full Name" className="w-full p-4 border-2 border-slate-100 rounded-2xl focus:border-blue-500 outline-none transition-all" onChange={e => setStudent({...student, name: e.target.value})} />
+                            <input placeholder="Register Number" className="w-full p-4 border-2 border-slate-100 rounded-2xl focus:border-blue-500 outline-none transition-all" onChange={e => setStudent({...student, reg: e.target.value})} />
+                        </div>
+
+                        <button disabled={!student.name || !student.reg} onClick={() => setView('quiz')} className="w-full py-4 bg-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all disabled:opacity-50">
+                            Start Exam
+                        </button>
+                    </div>
+                </div>
+            );
+
+            if (view === 'quiz') return (
+                <div className="max-w-xl mx-auto py-12 px-4">
+                    <div className="flex justify-between items-center mb-8">
+                        <div>
+                            <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">{ALL_QUESTIONS[currentQ].topicName}</p>
+                            <p className="text-xs font-bold text-slate-400">Question {currentQ + 1} of 50</p>
+                        </div>
+                        <div className={`w-12 h-12 rounded-full border-4 flex items-center justify-center font-mono font-bold ${timer < 5 ? 'border-red-500 text-red-500 animate-pulse' : 'border-slate-200 text-slate-700'}`}>
+                            {timer}
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 mb-8 min-h-[400px] flex flex-col justify-between">
+                        <h2 className="text-xl font-bold text-slate-800 leading-snug mb-8">{ALL_QUESTIONS[currentQ].q}</h2>
+                        <div className="space-y-3">
+                            {ALL_QUESTIONS[currentQ].a.map((opt, i) => (
+                                <button key={i} onClick={() => nextQuestion(i)} className="w-full p-4 text-left border-2 border-slate-50 rounded-2xl hover:border-blue-500 hover:bg-blue-50 transition-all font-medium text-slate-700 active:bg-blue-100">
+                                    {opt}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-blue-600 h-full transition-all duration-500" style={{width: `${(currentQ/50)*100}%`}}></div>
+                    </div>
+                </div>
+            );
+
+            if (view === 'end') {
+                const total = answers.reduce((acc, val, i) => acc + (val === ALL_QUESTIONS[i].c ? 1 : 0), 0);
+                return (
+                    <div className="flex items-center justify-center min-h-screen p-4">
+                        <div className="bg-white p-10 rounded-[2.5rem] shadow-2xl text-center max-w-sm w-full border border-slate-100">
+                            <div className="inline-flex items-center justify-center w-20 h-20 bg-green-50 text-green-500 rounded-full mb-6">
+                                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <h2 className="text-3xl font-black text-slate-800 mb-2">Done!</h2>
+                            <p className="text-slate-500 mb-8 font-medium">Exam submitted locally. Please sync your marks now.</p>
+                            
+                            <div className="bg-slate-50 p-6 rounded-3xl mb-8 border border-slate-100">
+                                <p className="text-xs font-bold text-slate-400 uppercase mb-1">Total Score</p>
+                                <p className="text-5xl font-black text-blue-600">{total}<span className="text-xl text-slate-300"> / 50</span></p>
+                            </div>
+
+                            <button onClick={sendEmail} className="w-full py-5 bg-blue-600 text-white font-bold rounded-2xl shadow-xl shadow-blue-100 hover:bg-blue-700 active:scale-95 transition-all mb-4">
+                                Sync Marks to Instructor
+                            </button>
+                            <p className="text-[10px] text-slate-400 leading-relaxed font-medium">Clicking this will open your email app. <br/>Send the auto-generated email to complete submission.</p>
+                        </div>
+                    </div>
+                );
+            }
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
+
