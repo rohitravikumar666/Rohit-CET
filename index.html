@@ -8,62 +8,70 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .option-btn {
-            @apply w-full text-left p-4 mb-3 border-2 border-gray-200 rounded-lg transition-all hover:bg-blue-50 hover:border-blue-300 flex items-center gap-3;
+            @apply w-full text-left p-4 mb-3 border-2 border-gray-200 rounded-xl transition-all hover:bg-blue-50 hover:border-blue-300 flex items-center gap-4 bg-white shadow-sm;
         }
         .option-prefix {
-            @apply font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-200 min-w-[30px] text-center;
+            @apply font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200 min-w-[40px] text-center shrink-0;
         }
         #timer-ring { transition: stroke-dashoffset 1s linear; }
         
-        /* Fix for the overlapping issue seen in your screenshot */
+        /* Ensure the result card is clean and scrollable on mobile */
         #result-screen {
-            display: none; /* Managed by JS */
+            display: none;
             flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        #capture-area {
+            background: white;
+            border-radius: 1.5rem;
         }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
 
-    <div id="app" class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-gray-100 flex flex-col">
+    <div id="app" class="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden border border-slate-200 flex flex-col">
         
+        <!-- Registration Screen -->
         <div id="setup-screen" class="p-8">
             <h1 class="text-2xl font-black text-slate-800 mb-2">Civil Engineering Modelling Lab Viva</h1>
             <p class="text-slate-500 mb-8 border-b pb-4">Department of Civil Engineering</p>
             
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Full Name</label>
-                    <input type="text" id="student-name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Enter your full name">
+                    <label class="block text-sm font-bold text-slate-700 mb-1.5">Full Name</label>
+                    <input type="text" id="student-name" class="w-full p-4 border-2 border-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Enter your full name">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Roll Number</label>
-                    <input type="text" id="roll-no" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Enter roll number">
+                    <label class="block text-sm font-bold text-slate-700 mb-1.5">Roll Number</label>
+                    <input type="text" id="roll-no" class="w-full p-4 border-2 border-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Enter roll number">
                 </div>
                 
-                <div class="bg-blue-50 p-4 rounded-xl text-sm text-blue-900 border border-blue-100 mt-4">
+                <div class="bg-amber-50 p-5 rounded-2xl text-sm text-amber-900 border border-amber-100 mt-6">
                     <p class="font-bold mb-2 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Important Instructions:
+                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        Submission Rules:
                     </p>
-                    <ul class="list-disc ml-5 space-y-1">
-                        <li><strong>12 Seconds</strong> per question (Auto-skip).</li>
-                        <li>Total 50 questions across 10 experiments.</li>
-                        <li><strong>Final Step:</strong> Click 'Submit to Instructor' to download your result.</li>
-                        <li class="font-bold text-blue-700 uppercase tracking-tight">You MUST manually attach the downloaded image to the email.</li>
+                    <ul class="list-disc ml-5 space-y-1.5 opacity-90">
+                        <li><strong>12 Seconds</strong> timer per question.</li>
+                        <li>After 50 questions, a result card is generated.</li>
+                        <li>Click <strong>Submit to Instructor</strong> to download the image.</li>
+                        <li><strong>Manually attach</strong> that image to the email that opens automatically.</li>
                     </ul>
                 </div>
 
-                <button onclick="startQuiz()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-[0.98]">
-                    START ASSESSMENT
+                <button onclick="startQuiz()" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl transition-all shadow-lg active:scale-[0.98] text-lg uppercase tracking-wider">
+                    Start Assessment
                 </button>
             </div>
         </div>
 
+        <!-- Quiz Screen -->
         <div id="quiz-screen" class="hidden flex-col">
             <div class="bg-slate-900 text-white p-6 flex justify-between items-center">
                 <div class="flex-1">
                     <p id="current-exp" class="text-[10px] uppercase tracking-widest text-blue-400 font-black mb-1"></p>
-                    <h2 id="question-count" class="text-lg font-medium">Question 1/50</h2>
+                    <h2 id="question-count" class="text-lg font-bold">Question 1/50</h2>
                 </div>
                 <div class="relative flex items-center justify-center">
                     <svg class="w-14 h-14">
@@ -74,30 +82,267 @@
                 </div>
             </div>
             
-            <div class="p-8">
-                <div id="question-text" class="text-xl font-bold text-slate-800 mb-8 leading-relaxed"></div>
+            <div class="p-6 md:p-8 bg-slate-50 flex-grow">
+                <div id="question-text" class="text-xl font-bold text-slate-800 mb-8 leading-snug"></div>
                 <div id="options-container" class="space-y-1"></div>
             </div>
         </div>
 
-        <div id="result-screen" class="hidden p-6 overflow-y-auto max-h-screen">
-            <div id="capture-area" class="bg-white p-6 border rounded-2xl shadow-sm mb-6">
-                <div class="text-center mb-6">
-                    <h2 class="text-xl font-black text-slate-900 uppercase">Viva Result Card</h2>
-                    <p class="text-xs text-slate-500">Modelling Lab Assessment</p>
+        <!-- Results Screen -->
+        <div id="result-screen" class="hidden p-6 overflow-y-auto max-h-[90vh]">
+            <div id="capture-area" class="p-8 border-2 border-slate-100 shadow-sm">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tighter">Viva Result Card</h2>
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">Modelling Lab Assessment</p>
                 </div>
                 
-                <div class="flex flex-col gap-1 text-sm mb-6 pb-4 border-b">
-                    <p><strong>Name:</strong> <span id="res-name"></span></p>
-                    <p><strong>Roll No:</strong> <span id="res-roll"></span></p>
+                <div class="space-y-2 text-base mb-8 pb-6 border-b-2 border-slate-50">
+                    <p class="flex justify-between">
+                        <span class="text-slate-500">Student Name:</span>
+                        <span id="res-name" class="font-bold text-slate-900"></span>
+                    </p>
+                    <p class="flex justify-between">
+                        <span class="text-slate-500">Roll Number:</span>
+                        <span id="res-roll" class="font-bold text-slate-900"></span>
+                    </p>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-6 text-center">
-                    <div class="bg-slate-100 p-3 rounded-xl">
-                        <p class="text-[10px] text-slate-500 uppercase">Final Marks</p>
-                        <p class="text-2xl font-black text-slate-900"><span id="res-total"></span>/50</p>
-                    </div>
-                    <div class="bg-slate-100 p-3 rounded-xl">
+                <div class="bg-blue-600 p-6 rounded-2xl text-center mb-8 shadow-inner">
+                    <p class="text-blue-100 text-xs font-bold uppercase mb-1">Final Score</p>
+                    <p class="text-5xl font-black text-white"><span id="res-total"></span><span class="text-2xl opacity-50">/50</span></p>
+                </div>
+
+                <table class="w-full text-xs border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 border-b">
+                            <th class="p-3 text-left font-bold uppercase">Experiment Module</th>
+                            <th class="p-3 text-center font-bold uppercase">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="res-breakdown" class="divide-y divide-slate-50"></tbody>
+                </table>
+                
+                <div class="mt-8 pt-4 border-t border-slate-50 flex justify-between items-center opacity-50 text-[10px]">
+                    <p class="font-bold uppercase">Verified Result</p>
+                    <p id="res-date"></p>
+                </div>
+            </div>
+
+            <div class="space-y-4 mb-8">
+                <button onclick="handleEmailSubmission()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-5 rounded-2xl flex items-center justify-center gap-3 shadow-xl transition-all active:scale-95 text-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    SUBMIT TO INSTRUCTOR
+                </button>
+                <div class="p-4 bg-blue-50 rounded-xl border border-blue-100 text-[11px] text-blue-800 leading-tight flex gap-3 items-start">
+                    <svg class="w-5 h-5 shrink-0 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p>Clicking the button downloads your result image and opens your email app. You <b>MUST manually attach</b> the downloaded image to that email before sending.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            // Exp 1
+            { exp: "Exp 1: Single Storey (Flat Roof)", q: "What is the AutoCAD alias for the 'Construction Line' command used for vertical projections?", o: ["C", "XL", "CL", "X"], a: 1 },
+            { exp: "Exp 1: Single Storey (Flat Roof)", q: "What is the plinth height specified in the manual for this building?", o: ["45 cm", "60 cm", "75 cm", "90 cm"], a: 1 },
+            { exp: "Exp 1: Single Storey (Flat Roof)", q: "Which command is used to remove extra line segments between walls to create a clean T-junction?", o: ["ERASE", "BREAK", "TRIM", "EXPLODE"], a: 2 },
+            { exp: "Exp 1: Single Storey (Flat Roof)", q: "Which command is used to add text labels like 'BEDROOM' and 'KITCHEN'?", o: ["T", "TEXT", "MTEXT", "All of the above"], a: 3 },
+            { exp: "Exp 1: Single Storey (Flat Roof)", q: "In architectural drawing, a 'Plan' is a section view taken at:", o: ["Roof level", "Sill level", "Plinth level", "Foundation level"], a: 1 },
+            // Exp 2
+            { exp: "Exp 2: Double Storey (Sloped Roof)", q: "What is the roof pitch angle used for the RCC sloped roof?", o: ["15°", "22.5°", "30°", "45°"], a: 2 },
+            { exp: "Exp 2: Double Storey (Sloped Roof)", q: "In the dog-legged staircase design, what is the riser height?", o: ["12 cm", "15 cm", "18 cm", "20 cm"], a: 1 },
+            { exp: "Exp 2: Double Storey (Sloped Roof)", q: "What is the tread width for the staircase in this experiment?", o: ["20 cm", "25 cm", "30 cm", "35 cm"], a: 2 },
+            { exp: "Exp 2: Double Storey (Sloped Roof)", q: "The horizontal projection of the roof beyond the wall is called:", o: ["Parapet", "Eaves", "Ridge", "Valley"], a: 1 },
+            { exp: "Exp 2: Double Storey (Sloped Roof)", q: "To draw the stairs quickly, which command replicates the tread/riser lines?", o: ["MIRROR", "ARRAY", "SCALE", "JOIN"], a: 1 },
+            // Exp 3
+            { exp: "Exp 3: Public Health Centre", q: "What is the minimum width of the central passage in a PHC for stretcher movement?", o: ["1.5 m", "1.8 m", "2.4 m", "3.0 m"], a: 2 },
+            { exp: "Exp 3: Public Health Centre", q: "Which room acts as the entry point for patients to register?", o: ["Ward", "Doctor's Room", "Lobby/Waiting", "Store"], a: 2 },
+            { exp: "Exp 3: Public Health Centre", q: "Which room must be adjacent to the Laboratory for medicine distribution?", o: ["Ward", "Dispensary", "Toilet", "Doctor's Room"], a: 1 },
+            { exp: "Exp 3: Public Health Centre", q: "What is the ceiling height for the PHC rooms?", o: ["3.0 m", "3.3 m", "3.6 m", "4.0 m"], a: 2 },
+            { exp: "Exp 3: Public Health Centre", q: "The 'Dressing Room' in a PHC is primarily used for:", o: ["Changing clothes", "Minor procedures/wound care", "Storage", "Staff rest"], a: 1 },
+            // Exp 4
+            { exp: "Exp 4: Bank Building", q: "What is the mandatory RCC wall thickness for a Bank Strong Room?", o: ["23 cm", "30 cm", "45 cm", "60 cm"], a: 1 },
+            { exp: "Exp 4: Bank Building", q: "Which specific foundation type is modeled for the bank?", o: ["Strip footing", "RCC Isolated Column Footing", "Pile", "Well"], a: 1 },
+            { exp: "Exp 4: Bank Building", q: "The entrance to the Strong Room must have a:", o: ["PVC Door", "Wooden Door", "Heavy Steel Security Door", "Glass Door"], a: 2 },
+            { exp: "Exp 4: Bank Building", q: "What is the width of the main entrance door for the bank?", o: ["1.2 m", "1.5 m", "1.8 m", "2.1 m"], a: 2 },
+            { exp: "Exp 4: Bank Building", q: "In the section, the Strong Room slab thickness is often:", o: ["10 cm", "15 cm", "20 cm", "30 cm"], a: 3 },
+            // Exp 5
+            { exp: "Exp 5: Plumbing and Sanitary", q: "What is the minimum distance between a Septic Tank and a well/building?", o: ["1.5 m", "2.0 m", "3.0 m", "5.0 m"], a: 3 },
+            { exp: "Exp 5: Plumbing and Sanitary", q: "Which pipe carries waste from the Water Closet (WC)?", o: ["Waste Pipe", "Soil Pipe", "Vent Pipe", "Rainwater Pipe"], a: 1 },
+            { exp: "Exp 5: Plumbing and Sanitary", q: "What is the diameter of the Soil Pipe mentioned in the manual?", o: ["50 mm", "75 mm", "100 mm", "150 mm"], a: 2 },
+            { exp: "Exp 5: Plumbing and Sanitary", q: "Which structure follows the Septic Tank in the drainage sequence?", o: ["Municipal Sewer", "Soak Pit", "Water Tank", "Kitchen Sink"], a: 1 },
+            { exp: "Exp 5: Plumbing and Sanitary", q: "The slope of the 100mm horizontal drainage pipe should be roughly:", o: ["1 in 10", "1 in 40", "1 in 100", "1 in 200"], a: 1 },
+            // Exp 6
+            { exp: "Exp 6: Electrical Drawing", q: "What does 'DB' represent in an electrical plan?", o: ["Data Box", "Distribution Board", "Direct Battery", "Dual Beam"], a: 1 },
+            { exp: "Exp 6: Electrical Drawing", q: "The 'Meter Box' (MB) should be located:", o: ["In the bedroom", "Near the kitchen", "Outside the building/Entrance", "On the roof"], a: 2 },
+            { exp: "Exp 6: Electrical Drawing", q: "A 'Power Point' (16A) is typically required for which appliance?", o: ["Ceiling Fan", "Tube light", "Air Conditioner/Fridge", "Doorbell"], a: 2 },
+            { exp: "Exp 6: Electrical Drawing", q: "What is the standard wattage assumed for a Ceiling Fan?", o: ["40W", "60W", "100W", "1000W"], a: 1 },
+            { exp: "Exp 6: Electrical Drawing", q: "The 'Main Switch' is located inside the:", o: ["Switch board", "Distribution board", "Meter box", "Socket"], a: 1 },
+            // Exp 7
+            { exp: "Exp 7: Scheduling & Monitoring", q: "The 'Predecessor' column in a task list is used to define:", o: ["The cost", "The logical sequence/dependencies", "Worker assigned", "Total duration"], a: 1 },
+            { exp: "Exp 7: Scheduling & Monitoring", q: "What is the standard working time per day set in the project calendar?", o: ["6 hours", "8 hours", "10 hours", "12 hours"], a: 1 },
+            { exp: "Exp 7: Scheduling & Monitoring", q: "Which view provides a visual timeline with bars representing task durations?", o: ["Resource View", "Network Diagram", "Gantt Chart", "Histogram"], a: 2 },
+            { exp: "Exp 7: Scheduling & Monitoring", q: "Under 'Resource Allocation,' what type of resource is 'Cement'?", o: ["Work", "Material", "Cost", "Equipment"], a: 1 },
+            { exp: "Exp 7: Scheduling & Monitoring", q: "Which command is used to save the original schedule to compare progress?", o: ["Save As", "Set Baseline", "Update Task", "Constraint"], a: 1 },
+            // Exp 8
+            { exp: "Exp 8: Topographic Contour Map", q: "Which file format is commonly used to import survey points?", o: [".DWG", ".CSV or .TXT", ".PDF", ".JPEG"], a: 1 },
+            { exp: "Exp 8: Topographic Contour Map", q: "What does a 'Contour Interval' represent?", o: ["Horizontal distance", "Constant vertical distance", "Boundary length", "Scale of map"], a: 1 },
+            { exp: "Exp 8: Topographic Contour Map", q: "Closely spaced contour lines on a map indicate:", o: ["Flat plain", "Gentle slope", "Steep slope or cliff", "Water body"], a: 2 },
+            { exp: "Exp 8: Topographic Contour Map", q: "A series of closed contour lines with higher values inside represents a:", o: ["Pond", "Hill", "Valley", "Depression"], a: 1 },
+            { exp: "Exp 8: Topographic Contour Map", q: "The process of estimating elevations between known points is:", o: ["Extrapolation", "Interpolation", "Triangulation", "Integration"], a: 1 },
+            // Exp 9
+            { exp: "Exp 9: Earthwork Analysis", q: "The 'Cut and Fill' method is used to determine:", o: ["Building height", "Volume of soil added/removed", "Number of bricks", "Water table depth"], a: 1 },
+            { exp: "Exp 9: Earthwork Analysis", q: "A 'Formation Level' represents:", o: ["Existing level", "Desired final level", "Roof height", "Basement level"], a: 1 },
+            { exp: "Exp 9: Earthwork Analysis", q: "If GL is 105.0m and FL is 103.5m, it results in:", o: ["Fill", "Cut", "No earthwork", "Compaction"], a: 1 },
+            { exp: "Exp 9: Earthwork Analysis", q: "In software, what is the expression for area computation ?", o: ["#area", "@area", "$area", "#area#"], a: 0 },
+            { exp: "Exp 9: Earthwork Analysis", q: "To calculate volume between two surfaces, you must define:", o: ["Base & Comparison Surfaces", "Only boundary", "Number of points", "Color of map"], a: 0 },
+            // Exp 10
+            { exp: "Exp 10: EPANET Analysis", q: "What is the 'Base Demand' at a junction?", o: ["Diameter", "Avg consumption", "Elevation", "Max pressure"], a: 1 },
+            { exp: "Exp 10: EPANET Analysis", q: "Which headloss formula is set in the Project Defaults?", o: ["Darcy-Weisbach", "Manning's", "Hazen-Williams (H-W)", "Chezy's"], a: 2 },
+            { exp: "Exp 10: EPANET Analysis", q: "The 'Global Bulk Coefficient' for Chlorine reaction is set to:", o: ["0.5", "-0.5", "1.0", "-1.0"], a: 1 },
+            { exp: "Exp 10: EPANET Analysis", q: "A 'Time Pattern' is used in EPANET to:", o: ["Change material", "Model 24-hr demand changes", "Set clock", "Speed up simulation"], a: 1 },
+            { exp: "Exp 10: EPANET Analysis", q: "Which browser tab is used to view color-coded maps of pressure?", o: ["Data tab", "Map tab", "Reports tab", "Options tab"], a: 1 }
+        ];
+
+        let state = {
+            currentIndex: 0,
+            scores: Array(10).fill(0),
+            timeLeft: 12,
+            timer: null,
+            student: { name: '', roll: '' }
+        };
+
+        function startQuiz() {
+            state.student.name = document.getElementById('student-name').value.trim();
+            state.student.roll = document.getElementById('roll-no').value.trim();
+
+            if (!state.student.name || !state.student.roll) {
+                alert("Please enter both Name and Roll Number.");
+                return;
+            }
+
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'flex';
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            if (state.currentIndex >= quizData.length) {
+                showResults();
+                return;
+            }
+
+            const q = quizData[state.currentIndex];
+            document.getElementById('current-exp').innerText = q.exp;
+            document.getElementById('question-count').innerText = `Question ${state.currentIndex + 1} of 50`;
+            document.getElementById('question-text').innerText = q.q;
+            
+            const prefixes = ["A", "B", "C", "D"];
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.o.forEach((option, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = `<span class="option-prefix">${prefixes[idx]}</span><span class="font-medium text-slate-700">${option}</span>`;
+                btn.onclick = () => selectOption(idx);
+                container.appendChild(btn);
+            });
+
+            resetTimer();
+        }
+
+        function resetTimer() {
+            clearInterval(state.timer);
+            state.timeLeft = 12;
+            const ring = document.getElementById('timer-ring');
+            const text = document.getElementById('timer-text');
+            
+            const updateUI = () => {
+                text.innerText = state.timeLeft;
+                const offset = 150.8 - (state.timeLeft / 12) * 150.8;
+                ring.style.strokeDashoffset = offset;
+            };
+
+            updateUI();
+            state.timer = setInterval(() => {
+                state.timeLeft--;
+                updateUI();
+                if (state.timeLeft <= 0) {
+                    clearInterval(state.timer);
+                    nextQuestion();
+                }
+            }, 1000);
+        }
+
+        function selectOption(idx) {
+            const q = quizData[state.currentIndex];
+            const expIndex = Math.floor(state.currentIndex / 5);
+            if (idx === q.a) {
+                state.scores[expIndex]++;
+            }
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            state.currentIndex++;
+            renderQuestion();
+        }
+
+        function showResults() {
+            clearInterval(state.timer);
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'flex';
+
+            document.getElementById('res-name').innerText = state.student.name;
+            document.getElementById('res-roll').innerText = state.student.roll;
+            document.getElementById('res-date').innerText = new Date().toLocaleString();
+
+            const total = state.scores.reduce((a, b) => a + b, 0);
+            document.getElementById('res-total').innerText = total;
+
+            const breakdown = document.getElementById('res-breakdown');
+            breakdown.innerHTML = '';
+            state.scores.forEach((score, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="p-3 text-slate-600 font-medium">Experiment ${i+1}</td><td class="p-3 text-center font-black text-slate-900">${score}/5</td>`;
+                breakdown.appendChild(tr);
+            });
+        }
+
+        function handleEmailSubmission() {
+            const area = document.getElementById('capture-area');
+            const total = state.scores.reduce((a, b) => a + b, 0);
+            const rollClean = state.student.roll.replace(/\s/g, '_');
+            
+            html2canvas(area, { scale: 3 }).then(canvas => {
+                // Download
+                const link = document.createElement('a');
+                link.download = `Viva_${rollClean}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+
+                // Email
+                const body = `Sir,\n\nI have successfully completed the Civil Engineering Modelling Lab Viva Assessment.\n\n` +
+                             `Student Name: ${state.student.name}\n` +
+                             `Roll Number: ${state.student.roll}\n` +
+                             `Final Score: ${total}/50\n\n` +
+                             `Attached is the verified result card (Viva_${rollClean}.png) for your reference.\n\n` +
+                             `Best regards,\n${state.student.name}`;
+
+                const mailUrl = `mailto:rohitravikumar@cet.ac.in?subject=Viva Result Submission: ${state.student.name}&body=${encodeURIComponent(body)}`;
+                
+                setTimeout(() => {
+                    window.location.href = mailUrl;
+                    alert("RESULT CAPTURED!\n\n1. A screenshot has been saved to your downloads.\n2. Email app is opening.\n3. PLEASE MANUALLY ATTACH the image 'Viva_" + rollClean + ".png' to complete submission.");
+                }, 800);
+            });
+        }
+    </script>
+</body>
+</html>
+
                         <p class="text-[10px] text-slate-500 uppercase">Status</p>
                         <p id="res-status" class="text-2xl font-black"></p>
                     </div>
