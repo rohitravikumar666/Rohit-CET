@@ -5,18 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modelling Lab MCQ Quiz</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         .timer-bar { transition: width 1s linear; }
-        .option-btn { transition: all 0.2s; text-align: left; display: block; width: 100%; padding: 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; background: white; margin-bottom: 0.75rem; }
-        .option-btn:hover { border-color: #3b82f6; background-color: #eff6ff; }
+        .option-btn { transition: all 0.2s; text-align: left; display: block; width: 100%; padding: 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; background: white; margin-bottom: 0.75rem; font-weight: 500; }
+        .option-btn:hover { border-color: #3b82f6; background-color: #eff6ff; transform: translateX(5px); }
         .hidden { display: none !important; }
+        #capture-area { padding: 20px; background: white; border-radius: 12px; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans">
-    <!-- Header -->
     <header class="bg-blue-800 text-white p-4 shadow-lg sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-lg font-bold">Modelling Lab Quiz</h1>
+            <h1 class="text-lg font-bold">Modelling Lab Assessment</h1>
             <div id="overall-timer-display" class="text-lg font-mono bg-blue-900 px-3 py-1 rounded">10:00</div>
         </div>
     </header>
@@ -24,18 +25,18 @@
     <main class="container mx-auto p-4 md:p-8">
         <!-- Start Screen -->
         <div id="screen-start" class="bg-white rounded-xl shadow-md p-8 max-w-2xl mx-auto text-center">
-            <h2 class="text-3xl font-bold text-gray-800 mb-4">Comprehensive MCQ Assessment</h2>
-            <div class="text-left bg-gray-50 p-6 rounded-lg mb-8">
-                <p class="font-semibold mb-2 text-blue-800">Exam Rules:</p>
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Comprehensive Lab Quiz</h2>
+            <div class="text-left bg-gray-50 p-6 rounded-lg mb-8 border-l-4 border-blue-600">
+                <p class="font-bold mb-2 text-blue-800 uppercase tracking-tight">Instructions:</p>
                 <ul class="text-gray-600 space-y-2">
-                    <li>• 10 Experiments | 5 Questions each</li>
-                    <li>• <strong>12 Seconds</strong> per question (Automatic skip)</li>
-                    <li>• <strong>10 Minutes</strong> total time limit</li>
-                    <li>• Results sent to: rohitravikumar@cet.ac.in</li>
+                    <li>• 10 Experiments | 50 Questions total</li>
+                    <li>• <strong>12 Seconds</strong> per question (Auto-skip)</li>
+                    <li>• A result image will be generated automatically at the end.</li>
+                    <li>• <strong>Mandatory:</strong> Download and upload the result image.</li>
                 </ul>
             </div>
             <button id="btn-begin" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg transform active:scale-95 transition">
-                Start Quiz Now
+                Start Quiz
             </button>
         </div>
 
@@ -58,32 +59,44 @@
 
         <!-- Result Screen -->
         <div id="screen-result" class="hidden max-w-2xl mx-auto">
-            <div class="bg-white rounded-xl shadow-md p-8 border-t-8 border-blue-800">
-                <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Quiz Completion Report</h2>
+            <div id="capture-area" class="bg-white rounded-xl shadow-md border-t-8 border-blue-800">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">OFFICIAL SCORECARD</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Student Name</label>
+                            <input type="text" id="input-name" placeholder="Type Name here..." class="w-full border-2 border-gray-200 rounded-lg p-2 focus:border-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Roll Number</label>
+                            <input type="text" id="input-roll" placeholder="Roll No." class="w-full border-2 border-gray-200 rounded-lg p-2 focus:border-blue-500 outline-none">
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="font-bold text-gray-700 mb-4 border-b pb-2">Detailed Performance:</h3>
+                        <div id="marks-table" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs"></div>
+                    </div>
+
+                    <div class="bg-blue-800 text-white p-6 rounded-xl text-center shadow-lg">
+                        <p class="text-blue-200 uppercase text-xs font-bold tracking-widest mb-1">Total Marks Secured</p>
+                        <p class="text-5xl font-black"><span id="display-total-score">0</span><span class="text-2xl font-normal text-blue-300"> / 50</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 space-y-4">
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+                    <p class="text-sm text-yellow-700 font-medium">Step 1: Fill in your Name and Roll No above.<br>Step 2: Click "Capture & Download Result" below.<br>Step 3: Upload the saved image to the submission portal.</p>
+                </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Student Name</label>
-                        <input type="text" id="input-name" placeholder="Full Name" class="w-full border-2 border-gray-200 rounded-lg p-2 focus:border-blue-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Roll Number</label>
-                        <input type="text" id="input-roll" placeholder="Roll No." class="w-full border-2 border-gray-200 rounded-lg p-2 focus:border-blue-500 outline-none">
-                    </div>
-                </div>
+                <button id="btn-capture" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl text-lg shadow-lg flex items-center justify-center gap-3">
+                    Capture & Download Result Image
+                </button>
 
-                <div class="mb-8">
-                    <h3 class="font-bold text-gray-700 mb-4 border-b pb-2">Experiment-wise Marks (out of 5):</h3>
-                    <div id="marks-table" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm"></div>
-                </div>
-
-                <div class="bg-blue-800 text-white p-6 rounded-xl text-center shadow-inner">
-                    <p class="text-blue-200 uppercase text-xs font-bold tracking-widest mb-1">Aggregate Score</p>
-                    <p class="text-5xl font-black"><span id="display-total-score">0</span><span class="text-2xl font-normal text-blue-300"> / 50</span></p>
-                </div>
-
-                <button id="btn-submit-final" class="mt-8 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition flex items-center justify-center gap-3">
-                    Submit for Mark Entry
+                <button id="btn-submit-final" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition">
+                    Submit via Email
                 </button>
             </div>
         </div>
@@ -129,17 +142,17 @@
                 { exp: "Experiment 6", q: "What is the standard wattage assumed for a Ceiling Fan?", o: ["40W", "60W", "100W", "1000W"], a: 1 },
                 { exp: "Experiment 6", q: "The 'Main Switch' is located inside the:", o: ["Switch board", "Distribution board", "Meter Box", "Socket"], a: 2 },
                 // Exp 7
-                { exp: "Project Management using ProjectLibre", q: "The 'Predecessor' column in a task list is used to define:", o: ["The cost", "Logical sequence", "Worker assigned", "Duration"], a: 1 },
-                { exp: "Project Management using ProjectLibre", q: "Standard working time per day set in the project calendar?", o: ["6 hours", "8 hours", "10 hours", "12 hours"], a: 1 },
-                { exp: "Project Management using ProjectLibre", q: "Visual timeline of the project with bars representing task durations?", o: ["Resource View", "Network Diagram", "Gantt Chart", "Histogram"], a: 2 },
-                { exp: "Project Management using ProjectLibre", q: "Under 'Resource Allocation,' what type is 'Cement'?", o: ["Work", "Material", "Cost", "Equipment"], a: 1 },
-                { exp: "Project Management using ProjectLibre", q: "Command used to save the original schedule to compare progress?", o: ["Save As", "Set Baseline", "Update Task", "Constraint"], a: 1 },
-                // Exp 8
-                { exp: "Contour Map using QGIS", q: "File format commonly used to import survey data points?", o: [".DWG", ".CSV or .TXT", ".PDF", ".JPEG"], a: 1 },
-                { exp: "Contour Map using QGIS", q: "What does a 'Contour Interval' represent?", o: ["Horizontal distance", "Vertical distance between lines", "Boundary length", "Scale"], a: 1 },
-                { exp: "Contour Map using QGIS", q: "Closely spaced contour lines on a map indicate:", o: ["Flat plain", "Gentle slope", "Steep slope", "Water body"], a: 2 },
-                { exp: "Contour Map using QGIS", q: "Closed contour lines with higher values inside represents a:", o: ["Pond", "Hill", "Valley", "Depression"], a: 1 },
-                { exp: "Contour Map using QGIS", q: "Process of estimating elevations between known points?", o: ["Extrapolation", "Interpolation", "Triangulation", "Integration"], a: 1 },
+                { exp: "Project Management: ProjectLibre", q: "The 'Predecessor' column in a task list is used to define:", o: ["The cost", "Logical sequence", "Worker assigned", "Duration"], a: 1 },
+                { exp: "Project Management: ProjectLibre", q: "Standard working time per day set in the project calendar?", o: ["6 hours", "8 hours", "10 hours", "12 hours"], a: 1 },
+                { exp: "Project Management: ProjectLibre", q: "Visual timeline of the project with bars representing task durations?", o: ["Resource View", "Network Diagram", "Gantt Chart", "Histogram"], a: 2 },
+                { exp: "Project Management: ProjectLibre", q: "Under 'Resource Allocation,' what type is 'Cement'?", o: ["Work", "Material", "Cost", "Equipment"], a: 1 },
+                { exp: "Project Management: ProjectLibre", q: "Command used to save the original schedule to compare progress?", o: ["Save As", "Set Baseline", "Update Task", "Constraint"], a: 1 },
+                // Exp 8 - FULL Q&A as requested
+                { exp: "Contour Map using QGIS", q: "Which file format is commonly used to import survey data points into QGIS software?", o: [".DWG", ".CSV or .TXT", ".PDF", ".JPEG"], a: 1 },
+                { exp: "Contour Map using QGIS", q: "What does a 'Contour Interval' represent in a digital topographic map?", o: ["Constant horizontal distance", "Constant vertical distance between lines", "Total boundary length", "Drawing scale factor"], a: 1 },
+                { exp: "Contour Map using QGIS", q: "In QGIS, closely spaced contour lines on a generated map indicate:", o: ["A flat plain area", "A gentle uniform slope", "A steep slope or cliff", "A large water body"], a: 2 },
+                { exp: "Contour Map using QGIS", q: "A series of closed contour lines with higher elevation values inside represents a:", o: ["Pond", "Hill", "Valley", "Depression"], a: 1 },
+                { exp: "Contour Map using QGIS", q: "The process of estimating elevations between known survey points in QGIS is called:", o: ["Extrapolation", "Interpolation", "Triangulation", "Integration"], a: 1 },
                 // Exp 9
                 { exp: "Experiment 9", q: "The 'Cut and Fill' method is used to determine:", o: ["Building height", "Volume of soil", "Brick count", "Water table"], a: 1 },
                 { exp: "Experiment 9", q: "Formation Level used in this experiment is:", o: ["Existing ground", "Desired final level", "Roof height", "the level of basement"], a: 3 },
@@ -186,9 +199,7 @@
             };
 
             function switchScreen(name) {
-                Object.keys(ui.screens).forEach(key => {
-                    ui.screens[key].classList.add('hidden');
-                });
+                Object.keys(ui.screens).forEach(key => ui.screens[key].classList.add('hidden'));
                 ui.screens[name].classList.remove('hidden');
             }
 
@@ -196,10 +207,7 @@
                 state.currentQ = 0;
                 state.totalTime = 600;
                 state.responses.fill(null);
-                
                 switchScreen('quiz');
-                
-                // Overall Timer
                 state.overallInterval = setInterval(() => {
                     state.totalTime--;
                     const m = Math.floor(state.totalTime / 60);
@@ -207,7 +215,6 @@
                     ui.displays.totalTimer.textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
                     if(state.totalTime <= 0) finishQuiz();
                 }, 1000);
-
                 showQuestion();
             }
 
@@ -216,12 +223,10 @@
                     finishQuiz();
                     return;
                 }
-
                 const data = questions[state.currentQ];
                 ui.displays.expName.textContent = data.exp;
                 ui.displays.qNum.textContent = state.currentQ + 1;
                 ui.displays.qText.textContent = data.q;
-                
                 ui.displays.options.innerHTML = '';
                 data.o.forEach((opt, idx) => {
                     const btn = document.createElement('button');
@@ -230,27 +235,21 @@
                     btn.onclick = () => handleAnswer(idx);
                     ui.displays.options.appendChild(btn);
                 });
-
                 startQuestionTimer();
             }
 
             function startQuestionTimer() {
                 if(state.questionInterval) clearInterval(state.questionInterval);
                 state.questionTime = 12;
-                updateProgressBar();
-
+                ui.displays.qProgress.style.width = '100%';
                 state.questionInterval = setInterval(() => {
                     state.questionTime--;
-                    updateProgressBar();
+                    ui.displays.qProgress.style.width = (state.questionTime / 12 * 100) + '%';
                     if(state.questionTime <= 0) {
                         state.currentQ++;
                         showQuestion();
                     }
                 }, 1000);
-            }
-
-            function updateProgressBar() {
-                ui.displays.qProgress.style.width = (state.questionTime / 12 * 100) + '%';
             }
 
             function handleAnswer(index) {
@@ -262,57 +261,50 @@
             function finishQuiz() {
                 clearInterval(state.overallInterval);
                 clearInterval(state.questionInterval);
-                
                 let total = 0;
                 let expMarks = {};
-
                 questions.forEach((item, i) => {
                     if(!expMarks[item.exp]) expMarks[item.exp] = 0;
-                    if(state.responses[i] === item.a) {
-                        total++;
-                        expMarks[item.exp]++;
-                    }
+                    if(state.responses[i] === item.a) { total++; expMarks[item.exp]++; }
                 });
-
                 ui.displays.totalScore.textContent = total;
                 ui.displays.marksTable.innerHTML = '';
-                
                 for(let exp in expMarks) {
                     const row = document.createElement('div');
                     row.className = "flex justify-between p-2 bg-gray-50 rounded border border-gray-100";
                     row.innerHTML = `<span class="text-gray-600 font-medium">${exp}</span> <span class="font-bold text-blue-800">${expMarks[exp]}/5</span>`;
                     ui.displays.marksTable.appendChild(row);
                 }
-
                 switchScreen('result');
+            }
+
+            function downloadResultImage() {
+                const name = ui.inputs.name.value.trim();
+                const roll = ui.inputs.roll.value.trim();
+                
+                if(!name || !roll) {
+                    alert("Please enter your Name and Roll Number before capturing the result.");
+                    return;
+                }
+
+                html2canvas(document.querySelector("#capture-area")).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `Quiz_Result_${roll}.png`;
+                    link.href = canvas.toDataURL("image/png");
+                    link.click();
+                });
             }
 
             function submitToEmail() {
                 const name = ui.inputs.name.value.trim() || "N/A";
                 const roll = ui.inputs.roll.value.trim() || "N/A";
                 const score = ui.displays.totalScore.textContent;
-                
-                let breakdown = "";
-                const entries = ui.displays.marksTable.children;
-                for(let item of entries) {
-                    breakdown += item.innerText.replace('\n', ': ') + "\n";
-                }
-
-                const mailto = `mailto:rohitravikumar@cet.ac.in?subject=${encodeURIComponent('Modelling Lab Result: ' + name)}&body=${encodeURIComponent(
-                    "STUDENT REPORT\n" +
-                    "==============\n" +
-                    "Name: " + name + "\n" +
-                    "Roll No: " + roll + "\n" +
-                    "Total Score: " + score + "/50\n\n" +
-                    "BREAKDOWN:\n" + breakdown + "\n" +
-                    "Submitted on: " + new Date().toLocaleString()
-                )}`;
-
-                window.location.href = mailto;
+                const body = `Name: ${name}\nRoll No: ${roll}\nScore: ${score}/50\n\nPlease find the attached result image for verification.`;
+                window.location.href = `mailto:rohitravikumar@cet.ac.in?subject=Modelling Lab Quiz: ${roll}&body=${encodeURIComponent(body)}`;
             }
 
-            // Event Listeners
             document.getElementById('btn-begin').onclick = startQuiz;
+            document.getElementById('btn-capture').onclick = downloadResultImage;
             document.getElementById('btn-submit-final').onclick = submitToEmail;
         });
     </script>
